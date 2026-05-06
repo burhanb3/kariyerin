@@ -1,0 +1,306 @@
+/* Leaderboard uses the preserved bitmap art; DOM only paints live player/score text. */
+#ui-root .screen--leaderboard {
+  position: fixed !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: url("/assets/ui-leaderboard-live-base.png") center / 100% 100% no-repeat !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+#ui-root .screen--leaderboard::before,
+#ui-root .screen--leaderboard::after,
+#ui-root .screen--leaderboard .panel--leaderboard::before,
+#ui-root .screen--leaderboard .panel--leaderboard::after,
+#ui-root .screen--leaderboard .panel-kicker,
+#ui-root .screen--leaderboard .leaderboard-heading,
+#ui-root .screen--leaderboard .leaderboard-table-head,
+#ui-root .screen--leaderboard .leaderboard-status {
+  display: none !important;
+}
+
+#ui-root .screen--leaderboard .panel--leaderboard {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+#ui-root .screen--leaderboard .tabs {
+  position: absolute !important;
+  left: 34.35% !important;
+  top: 19.62% !important;
+  width: 32.3% !important;
+  height: 6.25% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  z-index: 4 !important;
+}
+
+#ui-root .screen--leaderboard .tab {
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 2px solid rgba(133, 238, 255, 0.95) !important;
+  border-bottom-color: rgba(255, 128, 143, 0.95) !important;
+  border-radius: 1.02rem 1.02rem 0.1rem 0.1rem !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.46) 0 17%, transparent 18%),
+    linear-gradient(180deg, #ff7e92 0%, #f25286 40%, #ca2b6f 100%) !important;
+  box-shadow:
+    inset 0 0.22rem 0.35rem rgba(255, 255, 255, 0.4),
+    inset 0 -0.22rem 0 rgba(139, 22, 86, 0.34),
+    0 0 0.75rem rgba(255, 77, 132, 0.16) !important;
+  color: #fffaf4 !important;
+  -webkit-text-fill-color: #fffaf4 !important;
+  font-size: clamp(1rem, 1.42vw, 1.62rem) !important;
+  font-style: italic !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  text-shadow: 0 2px 0 #8c2852, 0 0 0.5rem rgba(255, 255, 255, 0.18) !important;
+  transform: translateY(0.07em) !important;
+  white-space: nowrap !important;
+}
+
+#ui-root .screen--leaderboard .tab::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0.22rem 0.35rem auto 0.35rem !important;
+  height: 18% !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.42) !important;
+  z-index: -1 !important;
+}
+
+#ui-root .screen--leaderboard .leaderboard-list {
+  position: absolute !important;
+  left: 22.6% !important;
+  top: 31.0% !important;
+  width: 58.9% !important;
+  height: 49.0% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-rows: repeat(8, minmax(0, 1fr)) !important;
+  gap: 0.55% !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  z-index: 3 !important;
+}
+
+#ui-root .screen--leaderboard .leaderboard-row {
+  --leaderboard-row-offset-y: 0px;
+  display: grid !important;
+  grid-template-columns: 27.8% minmax(0, 44.7%) minmax(6rem, 27.5%) !important;
+  align-items: center !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 0 2.3% 0 0 !important;
+  gap: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#ui-root .screen--leaderboard .rank-badge,
+#ui-root .screen--leaderboard .leaderboard-avatar,
+#ui-root .screen--leaderboard .score-crown {
+  display: none !important;
+}
+
+#ui-root .screen--leaderboard .leaderboard-player {
+  grid-column: 2 !important;
+  min-width: 0 !important;
+  align-self: center !important;
+  justify-self: stretch !important;
+}
+
+#ui-root .screen--leaderboard .leaderboard-player strong {
+  display: block !important;
+  overflow: hidden !important;
+  color: #fffaf4 !important;
+  -webkit-text-fill-color: #fffaf4 !important;
+  font-size: clamp(1.08rem, 1.82vw, 2.02rem) !important;
+  font-style: italic !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  text-overflow: ellipsis !important;
+  text-shadow: 0 2px 0 #123c69, 0 0 0.65rem rgba(143, 233, 255, 0.18) !important;
+  transform: translateY(calc(0.11em + var(--leaderboard-row-offset-y))) !important;
+  white-space: nowrap !important;
+}
+
+#ui-root .screen--leaderboard .leaderboard-player span {
+  display: none !important;
+}
+
+#ui-root .screen--leaderboard .leaderboard-score {
+  grid-column: 3 !important;
+  justify-self: end !important;
+  display: block !important;
+  width: 100% !important;
+  color: #f8fbff !important;
+  -webkit-text-fill-color: #f8fbff !important;
+  font-size: clamp(1.06rem, 1.95vw, 2.22rem) !important;
+  font-style: italic !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  text-align: right !important;
+  text-shadow: 0 2px 0 #173f6a, 0 0 0.65rem rgba(178, 234, 255, 0.24) !important;
+  transform: translateY(calc(0.1em + var(--leaderboard-row-offset-y))) !important;
+  white-space: nowrap !important;
+}
+
+#ui-root .screen--leaderboard .leaderboard-row--2 {
+  --leaderboard-row-offset-y: 4px;
+}
+
+#ui-root .screen--leaderboard .leaderboard-row--1 {
+  --leaderboard-row-offset-y: -2px;
+}
+
+#ui-root .screen--leaderboard .leaderboard-row--3,
+#ui-root .screen--leaderboard .leaderboard-row--4 {
+  --leaderboard-row-offset-y: 12px;
+}
+
+#ui-root .screen--leaderboard .leaderboard-row--4 {
+  --leaderboard-row-offset-y: 13px;
+}
+
+#ui-root .screen--leaderboard .leaderboard-row--5 {
+  --leaderboard-row-offset-y: 8px;
+}
+
+#ui-root .screen--leaderboard .leaderboard-row--6 {
+  --leaderboard-row-offset-y: 3px;
+}
+
+#ui-root .screen--leaderboard .leaderboard-row--7 {
+  --leaderboard-row-offset-y: -1px;
+}
+
+#ui-root .screen--leaderboard .leaderboard-row--8 {
+  --leaderboard-row-offset-y: -4px;
+}
+
+#ui-root .screen--leaderboard .leaderboard-row--1 .leaderboard-score {
+  color: #ffe18f !important;
+  -webkit-text-fill-color: #ffe18f !important;
+  padding-right: clamp(1.45rem, 2.65vw, 2.85rem) !important;
+  text-shadow: 0 2px 0 #8c5510, 0 0 0.8rem rgba(255, 207, 86, 0.24) !important;
+}
+
+#ui-root .screen--leaderboard .leaderboard-row--2 .leaderboard-score {
+  color: #dcefff !important;
+  -webkit-text-fill-color: #dcefff !important;
+  padding-right: clamp(1.45rem, 2.65vw, 2.85rem) !important;
+}
+
+#ui-root .screen--leaderboard .leaderboard-row--3 .leaderboard-score {
+  color: #ff9b75 !important;
+  -webkit-text-fill-color: #ff9b75 !important;
+  padding-right: clamp(1.45rem, 2.65vw, 2.85rem) !important;
+  text-shadow: 0 2px 0 #843b2b, 0 0 0.8rem rgba(255, 135, 96, 0.22) !important;
+}
+
+#ui-root .screen--leaderboard .leaderboard-actions {
+  position: absolute !important;
+  left: 27.9% !important;
+  bottom: 6.95% !important;
+  width: 45.3% !important;
+  height: 9.85% !important;
+  display: grid !important;
+  grid-template-columns: 0.82fr 1.18fr !important;
+  gap: 13.5% !important;
+  align-items: center !important;
+  z-index: 4 !important;
+}
+
+#ui-root .screen--leaderboard .leaderboard-button {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  transform: none !important;
+}
+
+#ui-root .screen--leaderboard .leaderboard-button::before,
+#ui-root .screen--leaderboard .leaderboard-button::after {
+  display: none !important;
+}
+
+#ui-root .screen--leaderboard .leaderboard-button > * {
+  opacity: 0 !important;
+}
+
+@media (max-width: 760px) {
+  #ui-root .screen--leaderboard .tab {
+    font-size: clamp(0.62rem, 2.8vw, 0.95rem) !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-list {
+    left: 22.6% !important;
+    top: 31.0% !important;
+    width: 58.9% !important;
+    height: 49.0% !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-player strong,
+  #ui-root .screen--leaderboard .leaderboard-score {
+    font-size: clamp(0.62rem, 3vw, 0.95rem) !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-row--1 .leaderboard-score,
+  #ui-root .screen--leaderboard .leaderboard-row--2 .leaderboard-score,
+  #ui-root .screen--leaderboard .leaderboard-row--3 .leaderboard-score {
+    padding-right: clamp(0.6rem, 4vw, 1.1rem) !important;
+  }
+}

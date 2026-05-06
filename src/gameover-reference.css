@@ -1,0 +1,452 @@
+/* Game over uses preserved bitmap art; DOM only paints live Turkish text and hit targets. */
+#ui-root .screen--gameover {
+  position: fixed !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: url("/assets/ui-gameover-live-base.png") center / 100% 100% no-repeat !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+#ui-root .screen--gameover::before,
+#ui-root .screen--gameover::after,
+#ui-root .screen--gameover .panel::before,
+#ui-root .screen--gameover .panel::after,
+#ui-root .screen--gameover h2 {
+  display: none !important;
+}
+
+#ui-root .screen--gameover .panel {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+#ui-root .screen--gameover .panel-kicker {
+  position: absolute !important;
+  left: 39.7% !important;
+  top: 12.45% !important;
+  z-index: 4 !important;
+  display: grid !important;
+  width: 16.8% !important;
+  height: 4.65% !important;
+  margin: 0 !important;
+  padding: 0 1.4vh !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  color: #fffaf4 !important;
+  -webkit-text-fill-color: #fffaf4 !important;
+  font-size: clamp(1rem, 3.05vh, 1.9rem) !important;
+  font-style: italic !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  text-overflow: ellipsis !important;
+  text-shadow: 0 2px 0 #0e4b72, 0 0 0.6rem rgba(143, 233, 255, 0.25) !important;
+  white-space: nowrap !important;
+}
+
+#ui-root .screen--gameover .result-grid {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+#ui-root .screen--gameover .result-grid div {
+  position: absolute !important;
+  z-index: 4 !important;
+  display: block !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(1) {
+  left: 18.0% !important;
+  top: 41.25% !important;
+  width: 21.15% !important;
+  height: 18.35% !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(2) {
+  left: 40.1% !important;
+  top: 41.25% !important;
+  width: 19.7% !important;
+  height: 18.35% !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(3) {
+  left: 60.7% !important;
+  top: 41.25% !important;
+  width: 21.0% !important;
+  height: 18.35% !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(4) {
+  display: none !important;
+}
+
+#ui-root .screen--gameover .result-grid span,
+#ui-root .screen--gameover .result-grid strong {
+  position: absolute !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  font-style: italic !important;
+  line-height: 1 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+#ui-root .screen--gameover .result-grid span {
+  top: 13.5% !important;
+  color: #98eaff !important;
+  -webkit-text-fill-color: #98eaff !important;
+  font-size: clamp(0.9rem, 3vh, 1.75rem) !important;
+  font-weight: 900 !important;
+  text-shadow: 0 2px 0 #0e4266, 0 0 0.4rem rgba(127, 236, 255, 0.24) !important;
+}
+
+#ui-root .screen--gameover .result-grid strong {
+  top: 41% !important;
+  color: #fffaf4 !important;
+  -webkit-text-fill-color: #fffaf4 !important;
+  font-size: clamp(1.8rem, 7.35vh, 4.35rem) !important;
+  font-weight: 950 !important;
+  letter-spacing: 0 !important;
+  text-shadow: 0 3px 0 #123d66, 0 0 0.75rem rgba(143, 233, 255, 0.2) !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(1) span,
+#ui-root .screen--gameover .result-grid div:nth-child(1) strong {
+  left: 34.5% !important;
+  width: 61% !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(2) span {
+  left: 43% !important;
+  width: 52% !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(2) strong {
+  left: 37% !important;
+  width: 58% !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(3) span {
+  left: 37% !important;
+  width: 56% !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(3) strong {
+  left: 44% !important;
+  width: 45% !important;
+}
+
+#ui-root .screen--gameover .name-field {
+  position: absolute !important;
+  left: 19.75% !important;
+  top: 61.65% !important;
+  z-index: 5 !important;
+  display: block !important;
+  width: 35.0% !important;
+  height: 12.5% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+#ui-root .screen--gameover .name-field span {
+  position: absolute !important;
+  left: 1.2% !important;
+  top: -1.8% !important;
+  display: block !important;
+  width: 44% !important;
+  margin: 0 !important;
+  color: #76e8ff !important;
+  -webkit-text-fill-color: #76e8ff !important;
+  font-size: clamp(0.9rem, 3.1vh, 1.85rem) !important;
+  font-style: italic !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  text-shadow: 0 2px 0 #0b4064, 0 0 0.45rem rgba(127, 236, 255, 0.24) !important;
+  white-space: nowrap !important;
+}
+
+#ui-root .screen--gameover .name-field input {
+  position: absolute !important;
+  left: 1.2% !important;
+  top: 31% !important;
+  width: 70% !important;
+  height: 54% !important;
+  margin: 0 !important;
+  padding: 0 1.25vh !important;
+  border: 0 !important;
+  outline: 0 !important;
+  border-radius: 0.45rem !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #fffaf4 !important;
+  -webkit-text-fill-color: #fffaf4 !important;
+  caret-color: #8ef2ff !important;
+  font-size: clamp(1rem, 3.45vh, 2.05rem) !important;
+  font-style: italic !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  pointer-events: auto !important;
+  text-shadow: 0 2px 0 #102f58, 0 0 0.45rem rgba(143, 233, 255, 0.18) !important;
+}
+
+#ui-root .screen--gameover .name-field input::placeholder {
+  color: rgba(180, 213, 237, 0.58) !important;
+  -webkit-text-fill-color: rgba(180, 213, 237, 0.58) !important;
+}
+
+#ui-root .screen--gameover .submit-status {
+  position: absolute !important;
+  left: 57.9% !important;
+  top: 75.7% !important;
+  z-index: 6 !important;
+  width: 24.1% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  color: #bff5ff !important;
+  -webkit-text-fill-color: #bff5ff !important;
+  font-size: clamp(0.65rem, 1.8vh, 1.1rem) !important;
+  font-style: italic !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+  text-align: center !important;
+  text-shadow: 0 1px 0 #063a58 !important;
+  white-space: nowrap !important;
+}
+
+#ui-root .screen--gameover .panel-actions {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 5 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+#ui-root .screen--gameover .primary-button,
+#ui-root .screen--gameover .secondary-button,
+#ui-root .screen--gameover .ghost-button {
+  position: absolute !important;
+  display: grid !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #fffaf4 !important;
+  -webkit-text-fill-color: #fffaf4 !important;
+  font-style: italic !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  pointer-events: auto !important;
+  text-align: center !important;
+  text-shadow: 0 2px 0 #123d66, 0 0 0.55rem rgba(255, 255, 255, 0.2) !important;
+  white-space: nowrap !important;
+}
+
+#ui-root .screen--gameover .primary-button {
+  left: 57.8% !important;
+  top: 62.65% !important;
+  width: 24.25% !important;
+  height: 13.8% !important;
+  padding: 0 9% 0 2% !important;
+  place-items: center !important;
+  font-size: clamp(1.2rem, 4.45vh, 2.65rem) !important;
+}
+
+#ui-root .screen--gameover .secondary-button {
+  left: 22.55% !important;
+  top: 78.85% !important;
+  width: 25.85% !important;
+  height: 10.95% !important;
+  padding: 0 2% 0 6% !important;
+  place-items: center !important;
+  font-size: clamp(1.1rem, 4.1vh, 2.45rem) !important;
+}
+
+#ui-root .screen--gameover .ghost-button {
+  left: 52.05% !important;
+  top: 78.85% !important;
+  width: 24.55% !important;
+  height: 10.95% !important;
+  padding: 0 2% 0 6% !important;
+  place-items: center !important;
+  font-size: clamp(1.1rem, 4.1vh, 2.45rem) !important;
+}
+
+#ui-root .screen--gameover .primary-button:disabled {
+  opacity: 1 !important;
+}
+
+@media (max-height: 620px) {
+  #ui-root .screen--gameover .result-grid strong {
+    font-size: clamp(1.35rem, 6.75vh, 3.2rem) !important;
+  }
+
+  #ui-root .screen--gameover .primary-button,
+  #ui-root .screen--gameover .secondary-button,
+  #ui-root .screen--gameover .ghost-button {
+    font-size: clamp(0.9rem, 3.75vh, 1.8rem) !important;
+  }
+}
+
+/* User-provided live base already contains Turkish labels and button text. */
+#ui-root .screen--gameover .panel-kicker,
+#ui-root .screen--gameover .result-grid span,
+#ui-root .screen--gameover .name-field span {
+  display: none !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(1) {
+  left: 18.1% !important;
+  top: 39.0% !important;
+  width: 21.35% !important;
+  height: 17.55% !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(2) {
+  left: 40.45% !important;
+  top: 39.0% !important;
+  width: 19.8% !important;
+  height: 17.55% !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(3) {
+  left: 61.1% !important;
+  top: 39.0% !important;
+  width: 21.15% !important;
+  height: 17.55% !important;
+}
+
+#ui-root .screen--gameover .result-grid strong {
+  top: 44.5% !important;
+  overflow: visible !important;
+  font-size: clamp(1.35rem, 5.45vh, 3.35rem) !important;
+  text-overflow: clip !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(1) strong {
+  left: 33.5% !important;
+  width: 69% !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(2) strong {
+  left: 32.5% !important;
+  width: 73% !important;
+}
+
+#ui-root .screen--gameover .result-grid div:nth-child(3) strong {
+  left: 39.5% !important;
+  width: 50% !important;
+}
+
+#ui-root .screen--gameover .name-field {
+  left: 19.8% !important;
+  top: 58.0% !important;
+  width: 35.4% !important;
+  height: 12.9% !important;
+}
+
+#ui-root .screen--gameover .name-field input {
+  left: 0 !important;
+  top: 28.5% !important;
+  width: 72.5% !important;
+  height: 57% !important;
+  padding: 0 1.3vh !important;
+}
+
+#ui-root .screen--gameover .primary-button,
+#ui-root .screen--gameover .secondary-button,
+#ui-root .screen--gameover .ghost-button {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-shadow: none !important;
+}
+
+#ui-root .screen--gameover .primary-button::before,
+#ui-root .screen--gameover .primary-button::after,
+#ui-root .screen--gameover .secondary-button::before,
+#ui-root .screen--gameover .secondary-button::after,
+#ui-root .screen--gameover .ghost-button::before,
+#ui-root .screen--gameover .ghost-button::after {
+  display: none !important;
+}
+
+#ui-root .screen--gameover .primary-button {
+  left: 58.35% !important;
+  top: 60.9% !important;
+  width: 24.05% !important;
+  height: 11.95% !important;
+  padding: 0 !important;
+}
+
+#ui-root .screen--gameover .secondary-button {
+  left: 22.7% !important;
+  top: 74.7% !important;
+  width: 26.0% !important;
+  height: 10.4% !important;
+  padding: 0 !important;
+}
+
+#ui-root .screen--gameover .ghost-button {
+  left: 52.5% !important;
+  top: 74.7% !important;
+  width: 25.0% !important;
+  height: 10.4% !important;
+  padding: 0 !important;
+}

@@ -1,0 +1,21 @@
+{
+  "name": "octodive",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Octodive, an underwater arcade browser game for IEEE MSKU KARİYER-IN events.",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node scripts/run-tests.mjs"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.0"
+  }
+}
