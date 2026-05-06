@@ -1,15 +1,71 @@
-import {
-  isScoreStatus,
-  normalizeElapsedMs,
-  normalizePearls,
-  normalizePlayerName,
-  normalizeScore,
-  type AdminScoreEntry,
-  type AdminStatusUpdate,
-  type PublicScoreEntry,
-  type ScoreStatus,
-  type ScoreSubmission
-} from '../shared/score.ts';
+const DEFAULT_PLAYER_NAME = "KARİYER-IN'26";
+const MAX_PLAYER_NAME_LENGTH = 32;
+const SCORE_STATUSES = ['valid', 'suspicious', 'disqualified', 'deleted'] as const;
+
+type ScoreStatus = (typeof SCORE_STATUSES)[number];
+
+type PublicScoreEntry = {
+  id: string;
+  playerName: string;
+  score: number;
+  pearls: number;
+  createdAt: string;
+};
+
+type ScoreSubmission = {
+  playerName: string;
+  score: number;
+  pearls: number;
+  elapsedMs: number;
+  clientId: string;
+  runId: string;
+};
+
+type AdminScoreEntry = PublicScoreEntry & {
+  scoreStatus: ScoreStatus;
+  eventId: string;
+  elapsedMs: number;
+  maskedIp: string;
+  userAgent: string;
+  clientId: string;
+  runId: string;
+  sameClientScoreCount: number;
+  adminAction: string;
+  adminActionReason: string;
+  adminActionAt: string | null;
+  updatedAt: string | null;
+};
+
+type AdminStatusUpdate = {
+  scoreStatus: ScoreStatus;
+  reason: string;
+};
+
+function normalizePlayerName(value: string): string {
+  const cleaned = value.replace(/\s+/g, ' ').trim();
+
+  if (!cleaned) {
+    return DEFAULT_PLAYER_NAME;
+  }
+
+  return cleaned.slice(0, MAX_PLAYER_NAME_LENGTH);
+}
+
+function normalizeScore(value: number): number {
+  return Math.max(0, Math.floor(Number.isFinite(value) ? value : 0));
+}
+
+function normalizePearls(value: number): number {
+  return Math.max(0, Math.floor(Number.isFinite(value) ? value : 0));
+}
+
+function normalizeElapsedMs(value: number): number {
+  return Math.max(0, Math.floor(Number.isFinite(value) ? value : 0));
+}
+
+function isScoreStatus(value: string): value is ScoreStatus {
+  return SCORE_STATUSES.includes(value as ScoreStatus);
+}
 
 type SupabaseRow = {
   id: string;

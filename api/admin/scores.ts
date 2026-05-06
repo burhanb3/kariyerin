@@ -3,7 +3,7 @@ import {
   getAdminScores,
   getHeaderValue,
   getScoreApiConfig
-} from '../../src/server/eventScores.ts';
+} from '../_lib/eventScores';
 
 function sendError(response: { status: (code: number) => { json: (body: unknown) => void } }, error: unknown): void {
   const statusCode = typeof error === 'object' && error && 'statusCode' in error

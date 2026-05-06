@@ -10,7 +10,7 @@ import {
   updateScoreStatus,
   type RequestLike,
   type ScoreApiConfig
-} from '../src/server/eventScores.ts';
+} from '../api/_lib/eventScores.ts';
 
 const config: ScoreApiConfig = {
   supabaseUrl: 'https://octodive.supabase.co',
