@@ -14,7 +14,7 @@ import {
 
 const config: ScoreApiConfig = {
   supabaseUrl: 'https://octodive.supabase.co',
-  serviceRoleKey: 'service-role-key',
+  serviceRoleKey: 'eyJlegacy-service-role-key',
   eventId: 'kariyer-in-test',
   adminCode: 'admin-secret'
 };
@@ -104,6 +104,78 @@ describe('event score security api', () => {
       assert.match(capturedUrl, /score_status=eq\.valid/);
       assert.match(capturedUrl, /event_id=eq\.kariyer-in-test/);
       assert.doesNotMatch(capturedUrl, /user_agent/);
+    } finally {
+      globalThis.fetch = previousFetch;
+    }
+  });
+
+  test('uses Supabase secret key REST headers without Authorization bearer', async () => {
+    let capturedHeaders = {} as Record<string, string>;
+    const previousFetch = globalThis.fetch;
+
+    globalThis.fetch = async (_input, init) => {
+      capturedHeaders = init?.headers as Record<string, string>;
+      return Response.json([]);
+    };
+
+    try {
+      await getPublicScores({
+        ...config,
+        serviceRoleKey: 'sb_secret_test_value'
+      });
+
+      assert.equal(capturedHeaders.apikey, 'sb_secret_test_value');
+      assert.equal(capturedHeaders.Authorization, undefined);
+      assert.equal(capturedHeaders['Content-Type'], 'application/json');
+    } finally {
+      globalThis.fetch = previousFetch;
+    }
+  });
+
+  test('keeps legacy JWT Authorization bearer behavior', async () => {
+    let capturedHeaders = {} as Record<string, string>;
+    const previousFetch = globalThis.fetch;
+
+    globalThis.fetch = async (_input, init) => {
+      capturedHeaders = init?.headers as Record<string, string>;
+      return Response.json([]);
+    };
+
+    try {
+      await getPublicScores(config);
+
+      assert.equal(capturedHeaders.apikey, config.serviceRoleKey);
+      assert.equal(capturedHeaders.Authorization, `Bearer ${config.serviceRoleKey}`);
+    } finally {
+      globalThis.fetch = previousFetch;
+    }
+  });
+
+  test('includes sanitized Supabase error body without leaking secrets', async () => {
+    const previousFetch = globalThis.fetch;
+
+    globalThis.fetch = async () => Response.json(
+      {
+        message: 'permission denied for table octodash_scores',
+        code: '42501'
+      },
+      { status: 403 }
+    );
+
+    try {
+      await assert.rejects(
+        () => getPublicScores({
+          ...config,
+          serviceRoleKey: 'sb_secret_should_not_appear'
+        }),
+        (error: unknown) => {
+          assert.ok(error instanceof Error);
+          assert.match(error.message, /Supabase request failed: 403/);
+          assert.match(error.message, /permission denied/);
+          assert.doesNotMatch(error.message, /sb_secret_should_not_appear/);
+          return true;
+        }
+      );
     } finally {
       globalThis.fetch = previousFetch;
     }

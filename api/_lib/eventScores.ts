@@ -278,11 +278,16 @@ function mapAdminScore(row: SupabaseRow, sameClientScoreCount: number): AdminSco
 }
 
 function createHeaders(config: ScoreApiConfig): HeadersInit {
-  return {
+  const headers: Record<string, string> = {
     apikey: config.serviceRoleKey,
-    Authorization: `Bearer ${config.serviceRoleKey}`,
     'Content-Type': 'application/json'
   };
+
+  if (config.serviceRoleKey.startsWith('eyJ')) {
+    headers.Authorization = `Bearer ${config.serviceRoleKey}`;
+  }
+
+  return headers;
 }
 
 async function supabaseFetch(config: ScoreApiConfig, endpoint: URL, init?: RequestInit): Promise<Response> {
@@ -295,9 +300,30 @@ async function supabaseFetch(config: ScoreApiConfig, endpoint: URL, init?: Reque
   });
 }
 
+function formatSupabaseErrorBody(rawBody: string): string {
+  const trimmed = rawBody.trim();
+
+  if (!trimmed) {
+    return '';
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed) as Record<string, unknown>;
+    const parts = ['message', 'code', 'details', 'hint']
+      .map((key) => typeof parsed[key] === 'string' ? String(parsed[key]).trim() : '')
+      .filter(Boolean);
+
+    return parts.join(' | ').slice(0, 600);
+  } catch {
+    return trimmed.replace(/\s+/g, ' ').slice(0, 300);
+  }
+}
+
 async function readRows(response: Response): Promise<SupabaseRow[]> {
   if (!response.ok) {
-    throw Object.assign(new Error(`Supabase request failed: ${response.status}`), { statusCode: response.status });
+    const errorBody = formatSupabaseErrorBody(await response.text());
+    const suffix = errorBody ? ` - ${errorBody}` : '';
+    throw Object.assign(new Error(`Supabase request failed: ${response.status}${suffix}`), { statusCode: response.status });
   }
 
   return (await response.json()) as SupabaseRow[];
