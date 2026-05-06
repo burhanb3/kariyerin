@@ -88,4 +88,46 @@ describe('leaderboard fallback', () => {
     assert.equal(submitted.id, 'api-score');
     assert.equal(leaderboard.isUsingFallback, false);
   });
+
+  test('ignores malformed API base values and posts to same-origin endpoint', async () => {
+    const api = new EventApiLeaderboardAdapter('kariyerin.vercel.app', (async (input, init) => {
+      assert.equal(String(input), '/api/submit-score');
+      assert.equal(init?.method, 'POST');
+
+      return Response.json({
+        entry: {
+          id: 'same-origin-score',
+          playerName: 'Ada Lovelace',
+          score: 420,
+          pearls: 3,
+          createdAt: '2026-05-07T10:00:00.000Z'
+        }
+      });
+    }) as typeof fetch);
+
+    const submitted = await api.submitScore({
+      playerName: 'Ada Lovelace',
+      score: 420,
+      pearls: 3,
+      elapsedMs: 8000,
+      clientId: 'client-1',
+      runId: 'run-1'
+    });
+
+    assert.equal(submitted.id, 'same-origin-score');
+  });
+
+  test('keeps fully qualified API base values when explicitly configured', async () => {
+    const api = new EventApiLeaderboardAdapter('https://kariyerin.vercel.app/', (async (input) => {
+      assert.equal(String(input), 'https://kariyerin.vercel.app/api/scores?limit=8');
+
+      return Response.json({
+        rows: []
+      });
+    }) as typeof fetch);
+
+    const rows = await api.getScores('all-time', 8);
+
+    assert.deepEqual(rows, []);
+  });
 });

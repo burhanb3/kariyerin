@@ -148,6 +148,20 @@ type ApiSubmitResponse = {
   entry: PublicScoreEntry;
 };
 
+function normalizeApiBase(value: string): string {
+  const trimmed = value.trim().replace(/\/$/, '');
+
+  if (!trimmed) {
+    return '';
+  }
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+
+  return '';
+}
+
 async function readApiError(response: Response): Promise<string> {
   const fallback = `HTTP ${response.status}`;
 
@@ -177,12 +191,16 @@ export class EventApiLeaderboardAdapter implements LeaderboardAdapter {
   fetcher: typeof fetch;
 
   constructor(baseUrl = '', fetcher: typeof fetch = fetch) {
-    this.baseUrl = baseUrl.replace(/\/$/, '');
+    this.baseUrl = normalizeApiBase(baseUrl);
     this.fetcher = fetcher;
   }
 
+  private createEndpoint(path: string): string {
+    return `${this.baseUrl}${path}`;
+  }
+
   async getScores(_scope: LeaderboardScope, limit = 10): Promise<LeaderboardEntry[]> {
-    const endpoint = `${this.baseUrl}/api/scores?limit=${encodeURIComponent(String(limit))}`;
+    const endpoint = this.createEndpoint(`/api/scores?limit=${encodeURIComponent(String(limit))}`);
     const response = await this.fetcher(endpoint);
 
     if (!response.ok) {
@@ -194,7 +212,7 @@ export class EventApiLeaderboardAdapter implements LeaderboardAdapter {
   }
 
   async submitScore(score: ScoreSubmission): Promise<LeaderboardEntry> {
-    const response = await this.fetcher(`${this.baseUrl}/api/submit-score`, {
+    const response = await this.fetcher(this.createEndpoint('/api/submit-score'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
