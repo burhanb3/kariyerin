@@ -2,7 +2,7 @@ import {
   getScoreApiConfig,
   parseScoreSubmission,
   submitScore
-} from './_lib/eventScores';
+} from './_lib/eventScores.js';
 
 async function readBody(request: { body?: unknown }): Promise<unknown> {
   if (typeof request.body === 'string') {

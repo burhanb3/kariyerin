@@ -1,4 +1,4 @@
-import { getPublicScores, getScoreApiConfig } from './_lib/eventScores';
+import { getPublicScores, getScoreApiConfig } from './_lib/eventScores.js';
 
 function sendError(response: { status: (code: number) => { json: (body: unknown) => void } }, error: unknown): void {
   const statusCode = typeof error === 'object' && error && 'statusCode' in error
