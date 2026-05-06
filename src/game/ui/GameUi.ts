@@ -292,13 +292,13 @@ export class GameUi {
         clientId: this.getClientId(),
         runId: this.currentRunId || this.createId('run')
       });
-      status.textContent = this.leaderboard.isUsingFallback
-        ? 'Bu tarayıcıya kaydedildi. Etkinlik geneli için Supabase ayarlanmalı.'
-        : 'Skor gönderildi.';
+      status.textContent = 'Skor etkinlik tablosuna gönderildi.';
       await this.renderLeaderboard('all-time');
       button.textContent = 'Gönderildi';
-    } catch {
-      status.textContent = 'Gönderilemedi. Skor bu tarayıcıda tutuldu.';
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Bilinmeyen hata';
+      console.error('Score submit failed', { message });
+      status.textContent = `Skor gönderilemedi. ${message}`;
       button.disabled = false;
       button.textContent = 'Tekrar Dene';
     }

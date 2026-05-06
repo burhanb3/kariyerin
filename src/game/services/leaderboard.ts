@@ -148,6 +148,29 @@ type ApiSubmitResponse = {
   entry: PublicScoreEntry;
 };
 
+async function readApiError(response: Response): Promise<string> {
+  const fallback = `HTTP ${response.status}`;
+
+  try {
+    const text = await response.text();
+    const trimmed = text.trim();
+
+    if (!trimmed) {
+      return fallback;
+    }
+
+    try {
+      const payload = JSON.parse(trimmed) as { error?: unknown };
+      const error = typeof payload.error === 'string' ? payload.error : trimmed;
+      return `${fallback}: ${error.slice(0, 300)}`;
+    } catch {
+      return `${fallback}: ${trimmed.replace(/\s+/g, ' ').slice(0, 300)}`;
+    }
+  } catch {
+    return fallback;
+  }
+}
+
 export class EventApiLeaderboardAdapter implements LeaderboardAdapter {
   readonly mode = 'supabase' as const;
   baseUrl: string;
@@ -163,7 +186,7 @@ export class EventApiLeaderboardAdapter implements LeaderboardAdapter {
     const response = await this.fetcher(endpoint);
 
     if (!response.ok) {
-      throw new Error(`Leaderboard fetch failed: ${response.status}`);
+      throw new Error(`Leaderboard fetch failed: ${await readApiError(response)}`);
     }
 
     const payload = (await response.json()) as ApiScoresResponse;
@@ -180,7 +203,7 @@ export class EventApiLeaderboardAdapter implements LeaderboardAdapter {
     });
 
     if (!response.ok) {
-      throw new Error(`Leaderboard submit failed: ${response.status}`);
+      throw new Error(`Leaderboard submit failed: ${await readApiError(response)}`);
     }
 
     const payload = (await response.json()) as ApiSubmitResponse;
@@ -190,7 +213,7 @@ export class EventApiLeaderboardAdapter implements LeaderboardAdapter {
 
 export class ResilientLeaderboardAdapter implements LeaderboardAdapter {
   readonly mode: 'supabase' | 'local';
-  private usingFallback = false;
+  private lastReadUsedFallback = false;
   primary: LeaderboardAdapter | null;
   fallback: LeaderboardAdapter;
 
@@ -204,42 +227,38 @@ export class ResilientLeaderboardAdapter implements LeaderboardAdapter {
   }
 
   get isUsingFallback(): boolean {
-    return this.usingFallback || this.primary === null;
+    return this.lastReadUsedFallback || this.primary === null;
   }
 
   async getScores(scope: LeaderboardScope, limit = 10): Promise<LeaderboardEntry[]> {
-    if (!this.primary || this.usingFallback) {
+    if (!this.primary) {
+      this.lastReadUsedFallback = true;
       return this.fallback.getScores(scope, limit);
     }
 
     try {
-      return await this.primary.getScores(scope, limit);
+      const rows = await this.primary.getScores(scope, limit);
+      this.lastReadUsedFallback = false;
+      return rows;
     } catch {
-      this.usingFallback = true;
+      this.lastReadUsedFallback = true;
       return this.fallback.getScores(scope, limit);
     }
   }
 
   async submitScore(score: ScoreSubmission): Promise<LeaderboardEntry> {
-    if (!this.primary || this.usingFallback) {
+    if (!this.primary) {
       return this.fallback.submitScore(score);
     }
 
-    try {
-      return await this.primary.submitScore(score);
-    } catch {
-      this.usingFallback = true;
-      return this.fallback.submitScore(score);
-    }
+    const entry = await this.primary.submitScore(score);
+    this.lastReadUsedFallback = false;
+    return entry;
   }
 }
 
 export function createLeaderboard(env: ImportMetaEnv): ResilientLeaderboardAdapter {
   const fallback = new LocalLeaderboardAdapter();
-
-  if (env.VITE_DISABLE_SERVER_LEADERBOARD === 'true') {
-    return new ResilientLeaderboardAdapter(null, fallback);
-  }
 
   return new ResilientLeaderboardAdapter(
     new EventApiLeaderboardAdapter(env.VITE_LEADERBOARD_API_BASE?.trim() || ''),

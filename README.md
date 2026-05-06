@@ -53,7 +53,7 @@ VITE_CLUB_NAME=IEEE MSKÜ Student Branch
 VITE_EVENT_LABEL=KARİYER-IN Etkinliği
 ```
 
-If the server API is unavailable, Octodive still runs and stores leaderboard entries in the current browser as a local fallback. Do not expose `SUPABASE_SERVICE_ROLE_KEY` through a `VITE_*` variable.
+The browser talks to the Vercel API endpoints (`/api/scores` and `/api/submit-score`), not directly to Supabase. If the public score read endpoint is temporarily unavailable, Octodive can still show a local fallback leaderboard, but score submission is sent to the event API. Do not expose `SUPABASE_SERVICE_ROLE_KEY` through a `VITE_*` variable.
 
 ## Supabase Setup
 
