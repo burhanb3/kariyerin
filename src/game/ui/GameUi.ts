@@ -28,7 +28,6 @@ const bestScoreKey = 'octodash.bestScore.v1';
 const clientIdKey = 'octodash.clientId.v1';
 const leaderboardRowCount = 8;
 const autoSubmitNamedDelayMs = 1200;
-const autoSubmitFallbackDelayMs = 20000;
 
 export class GameUi {
   private readonly root: HTMLElement;
@@ -296,8 +295,14 @@ export class GameUi {
     const button = this.query<HTMLButtonElement>('[data-action="submit"]');
     const input = this.query<HTMLInputElement>('[data-player-name]');
     const status = this.query<HTMLElement>('[data-submit-status]');
+    const playerName = input.value.trim();
 
     if (button.disabled) {
+      return;
+    }
+
+    if (!playerName) {
+      status.textContent = 'Skoru göndermek için adınızı yazın.';
       return;
     }
 
@@ -308,7 +313,7 @@ export class GameUi {
 
     try {
       await this.leaderboard.submitScore({
-        playerName: input.value,
+        playerName,
         score: this.lastGameOver.score,
         pearls: this.lastGameOver.pearls,
         elapsedMs: this.lastGameOver.elapsedMs,
@@ -420,10 +425,8 @@ export class GameUi {
           'Yeni rekor otomatik gönderilecek.'
         );
       } else {
-        this.scheduleAutoSubmit(
-          autoSubmitFallbackDelayMs,
-          'Yeni rekor! Adınızı yazın; unutulursa otomatik kaydedilecek.'
-        );
+        this.query<HTMLElement>('[data-submit-status]').textContent =
+          'Yeni rekor! Adınızı yazınca otomatik gönderilecek.';
       }
     }
   }

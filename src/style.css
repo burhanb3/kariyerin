@@ -68,11 +68,18 @@ button {
 }
 
 html[data-mode="admin"],
-html[data-mode="admin"] body,
+html[data-mode="admin"] body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body[data-mode="admin"] #app {
-  min-height: 100%;
-  height: auto;
-  overflow: auto;
+  display: block;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
 }
 
 body[data-mode="admin"] {
@@ -81,10 +88,15 @@ body[data-mode="admin"] {
 }
 
 body[data-mode="admin"] #ui-root {
-  position: relative;
-  min-height: 100vh;
-  overflow: visible;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
   pointer-events: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 body[data-mode="admin"] #game-root {
@@ -94,7 +106,7 @@ body[data-mode="admin"] #game-root {
 .admin-shell {
   width: min(1180px, calc(100vw - 32px));
   margin: 0 auto;
-  padding: 28px 0 40px;
+  padding: 28px 0 88px;
 }
 
 .admin-header {
@@ -1196,6 +1208,10 @@ h2 {
 .submit-status {
   min-height: 1.2rem;
   margin: 0.65rem 0 0;
+}
+
+#ui-root .screen--gameover .submit-status {
+  transform: translateY(-15px);
 }
 
 .leaderboard-heading {
