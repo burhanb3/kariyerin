@@ -203,6 +203,7 @@ export class GameUi {
       switch (actionButton.dataset.action) {
         case 'play':
         case 'again':
+          void this.requestLandscapeFullscreen();
           void this.audio.unlock();
           this.autoSubmitArmed = false;
           this.clearAutoSubmitTimer();
@@ -464,6 +465,20 @@ export class GameUi {
       screen.classList.remove('is-active');
     });
     this.query<HTMLElement>('[data-hud]').classList.add('is-active');
+  }
+
+  private async requestLandscapeFullscreen(): Promise<void> {
+    const isLandscapePhone = window.matchMedia?.('(pointer: coarse) and (orientation: landscape)').matches ?? false;
+
+    if (!isLandscapePhone || document.fullscreenElement || !document.documentElement.requestFullscreen) {
+      return;
+    }
+
+    try {
+      await document.documentElement.requestFullscreen({ navigationUI: 'hide' });
+    } catch {
+      // iOS Safari may deny fullscreen for normal pages; CSS safe-area sizing is the fallback.
+    }
   }
 
   private showScreen(name: string, keepHud = false): void {

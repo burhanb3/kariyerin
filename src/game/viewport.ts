@@ -46,24 +46,34 @@ function isCoarsePhone(width: number, height: number): boolean {
   return coarsePointer || Math.min(width, height) <= 760;
 }
 
+function getLandscapeSafetyInset(height: number, phoneLike: boolean, aspect: number): number {
+  if (!phoneLike || aspect < 1) {
+    return 0;
+  }
+
+  return clamp(Math.round(height * 0.065), 18, 34);
+}
+
 export function getViewportMetrics(): ViewportMetrics {
   const { width, height } = getBrowserViewport();
   const aspect = width / height;
   const phoneLike = isCoarsePhone(width, height);
   const profile: ViewportProfile =
     phoneLike && aspect < 0.85 ? 'portrait-narrow' : phoneLike && aspect >= 1 ? 'landscape-phone' : 'desktop';
+  const landscapeSafetyInset = getLandscapeSafetyInset(height, phoneLike, aspect);
+  const effectiveHeight = Math.max(320, height - landscapeSafetyInset);
   const gameHeight = profile === 'portrait-narrow' ? height : BASE_GAME_HEIGHT;
   const gameWidth =
     profile === 'portrait-narrow'
       ? clamp(width, 320, 520)
-      : clamp(Math.round(BASE_GAME_HEIGHT * Math.max(aspect, 16 / 9)), MIN_PHONE_GAME_WIDTH, MAX_GAME_WIDTH);
+      : clamp(Math.round(BASE_GAME_HEIGHT * Math.max(width / effectiveHeight, 16 / 9)), MIN_PHONE_GAME_WIDTH, MAX_GAME_WIDTH);
   const cameraZoom = profile === 'portrait-narrow' ? 0.9 : 1;
   const worldWidth = Math.round(gameWidth / cameraZoom);
   const worldHeight = Math.round(gameHeight / cameraZoom);
 
   return {
     viewportWidth: width,
-    viewportHeight: height,
+    viewportHeight: effectiveHeight,
     aspect,
     gameWidth,
     gameHeight,
