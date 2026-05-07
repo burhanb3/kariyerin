@@ -10,11 +10,11 @@ import {
   tickCombo,
   type ScoreState
 } from '../systems/scoring.ts';
-import { GAME_HEIGHT, GAME_WIDTH, GameEvents, type GameOverPayload, type ScorePayload } from '../types.ts';
+import { GameEvents, type GameOverPayload, type ScorePayload, type ViewportChangePayload } from '../types.ts';
+import { getViewportMetrics, type ViewportMetrics, type ViewportProfile } from '../viewport.ts';
 
 export const PLAY_SCENE_KEY = 'octodash-play';
 const PLAYER_SCALE = 0.112;
-const PLAYER_X = Math.max(86, Math.min(188, GAME_WIDTH * 0.24));
 
 type ArcadeImage = Phaser.Physics.Arcade.Image;
 type ArcadeSprite = Phaser.Physics.Arcade.Sprite;
@@ -42,8 +42,15 @@ export class PlayScene extends Phaser.Scene {
   private ended = false;
   private pausedByUser = false;
   private currentDifficulty: Difficulty = getDifficulty(0);
+  private viewportMetrics: ViewportMetrics = getViewportMetrics();
+  private worldWidth = this.viewportMetrics.worldWidth;
+  private worldHeight = this.viewportMetrics.worldHeight;
+  private viewportProfile: ViewportProfile = this.viewportMetrics.profile;
+  private background!: Phaser.GameObjects.Image;
   private mascotFrameIndex = 0;
   private mascotFrameTimerMs = 0;
+  private sceneReady = false;
+  private pendingStart = false;
 
   constructor() {
     super(PLAY_SCENE_KEY);
@@ -68,12 +75,22 @@ export class PlayScene extends Phaser.Scene {
   }
 
   create(): void {
-    createGameTextures(this);
+    createGameTextures(this, this.worldWidth, this.worldHeight);
     this.createWorld();
     this.createPhysicsObjects();
     this.createInput();
+    this.game.events.on(GameEvents.viewportChange, this.handleViewportChange, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.game.events.off(GameEvents.viewportChange, this.handleViewportChange, this);
+    });
     this.physics.pause();
     this.emitScore();
+    this.sceneReady = true;
+
+    if (this.pendingStart) {
+      this.pendingStart = false;
+      this.startRun();
+    }
   }
 
   update(_time: number, delta: number): void {
@@ -86,7 +103,7 @@ export class PlayScene extends Phaser.Scene {
     }
 
     this.elapsedMs += deltaMs;
-    this.currentDifficulty = getDifficulty(this.elapsedMs);
+    this.currentDifficulty = this.getProfiledDifficulty(this.elapsedMs);
     this.scoreState = tickCombo(
       addDistance(this.scoreState, (this.currentDifficulty.worldSpeed * deltaMs) / 1000),
       deltaMs
@@ -112,6 +129,11 @@ export class PlayScene extends Phaser.Scene {
   }
 
   startRun(): void {
+    if (!this.sceneReady || !this.player || !this.obstacles || !this.pearls || !this.powerUps || !this.currents) {
+      this.pendingStart = true;
+      return;
+    }
+
     this.running = true;
     this.ended = false;
     this.pausedByUser = false;
@@ -122,13 +144,13 @@ export class PlayScene extends Phaser.Scene {
     this.mascotFrameIndex = 0;
     this.mascotFrameTimerMs = 0;
     this.scoreState = createScoreState();
-    this.currentDifficulty = getDifficulty(0);
+    this.currentDifficulty = this.getProfiledDifficulty(0);
 
     this.clearRunObjects();
     this.player.clearTint();
     this.player.setActive(true).setVisible(true);
     this.player.setTexture(TextureKeys.octopus);
-    this.player.setPosition(PLAYER_X, 260);
+    this.player.setPosition(this.getPlayerX(), this.getPlayerStartY());
     this.player.setVelocity(0, 0);
     this.player.setAngularVelocity(0);
     this.player.setScale(PLAYER_SCALE);
@@ -163,33 +185,124 @@ export class PlayScene extends Phaser.Scene {
     return this.running && !this.ended;
   }
 
+  private handleViewportChange(metrics: ViewportChangePayload): void {
+    const widthChanged = Math.abs(metrics.worldWidth - this.worldWidth) > 2;
+    const heightChanged = Math.abs(metrics.worldHeight - this.worldHeight) > 2;
+    const zoomChanged = Math.abs(metrics.cameraZoom - this.viewportMetrics.cameraZoom) > 0.01;
+    const profileChanged = metrics.profile !== this.viewportProfile;
+
+    if (!widthChanged && !heightChanged && !zoomChanged && !profileChanged) {
+      return;
+    }
+
+    this.viewportMetrics = metrics;
+    this.worldWidth = metrics.worldWidth;
+    this.worldHeight = metrics.worldHeight;
+    this.viewportProfile = metrics.profile;
+    this.physics.world.setBounds(0, 0, this.worldWidth, this.worldHeight);
+
+    this.resizeWorldObjects();
+
+    if (this.player) {
+      this.player.x = this.getPlayerX();
+      this.player.y = Phaser.Math.Clamp(this.player.y, 36, this.worldHeight + 52);
+    }
+
+    if (this.shield?.visible) {
+      this.shield.setPosition(this.player.x, this.player.y);
+    }
+  }
+
+  private resizeWorldObjects(): void {
+    this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
+    this.cameras.main.setSize(this.viewportMetrics.gameWidth, this.viewportMetrics.gameHeight);
+    this.cameras.main.setZoom(this.viewportMetrics.cameraZoom);
+    this.cameras.main.scrollX = 0;
+    this.cameras.main.scrollY = 0;
+
+    this.background.setPosition(this.worldWidth / 2, this.worldHeight / 2).setDisplaySize(this.worldWidth, this.worldHeight);
+    this.waterLines
+      .setPosition(this.worldWidth / 2, this.worldHeight * 0.43)
+      .setSize(this.worldWidth + 240, 620)
+      .setDisplaySize(this.worldWidth + 240, 620);
+    this.reefBack
+      .setPosition(this.worldWidth / 2, this.worldHeight - 172)
+      .setSize(this.worldWidth, 170)
+      .setDisplaySize(this.worldWidth, 170);
+    this.seafloor
+      .setPosition(this.worldWidth / 2, this.worldHeight - 64)
+      .setSize(this.worldWidth, 130)
+      .setDisplaySize(this.worldWidth, 130);
+  }
+
+  private getPlayerX(): number {
+    if (this.viewportProfile === 'portrait-narrow') {
+      return Math.max(64, Math.min(84, this.worldWidth * 0.17));
+    }
+
+    return Math.max(86, Math.min(188, this.worldWidth * 0.24));
+  }
+
+  private getPlayerStartY(): number {
+    return Phaser.Math.Clamp(this.worldHeight * 0.48, 240, this.worldHeight - 120);
+  }
+
+  private getProfiledDifficulty(elapsedMs: number): Difficulty {
+    const difficulty = getDifficulty(elapsedMs);
+
+    if (this.viewportProfile !== 'portrait-narrow') {
+      return difficulty;
+    }
+
+    const seconds = elapsedMs / 1000;
+    const patternLevel = seconds < 36 ? 1 : seconds < 76 ? Math.min(difficulty.patternLevel, 2) : difficulty.patternLevel;
+
+    return {
+      ...difficulty,
+      worldSpeed: Math.round(difficulty.worldSpeed * 0.82),
+      spawnIntervalMs: difficulty.spawnIntervalMs + 180,
+      gapSize: difficulty.gapSize + 34,
+      patternLevel: patternLevel as Difficulty['patternLevel']
+    };
+  }
+
   private createWorld(): void {
-    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, TextureKeys.background).setDepth(0);
+    this.physics.world.setBounds(0, 0, this.worldWidth, this.worldHeight);
+    this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
+    this.cameras.main.setSize(this.viewportMetrics.gameWidth, this.viewportMetrics.gameHeight);
+    this.cameras.main.setZoom(this.viewportMetrics.cameraZoom);
+    this.cameras.main.scrollX = 0;
+    this.cameras.main.scrollY = 0;
+
+    this.background = this.add
+      .image(this.worldWidth / 2, this.worldHeight / 2, TextureKeys.background)
+      .setDepth(0)
+      .setDisplaySize(this.worldWidth, this.worldHeight);
     this.waterLines = this.add
-      .tileSprite(GAME_WIDTH / 2, GAME_HEIGHT * 0.43, GAME_WIDTH + 240, 620, TextureKeys.waterLines)
+      .tileSprite(this.worldWidth / 2, this.worldHeight * 0.43, this.worldWidth + 240, 620, TextureKeys.waterLines)
       .setDepth(0.65)
       .setAlpha(0.28);
     this.reefBack = this.add
-      .tileSprite(GAME_WIDTH / 2, GAME_HEIGHT - 172, GAME_WIDTH, 170, TextureKeys.reefBack)
+      .tileSprite(this.worldWidth / 2, this.worldHeight - 172, this.worldWidth, 170, TextureKeys.reefBack)
       .setDepth(1)
       .setAlpha(0.58);
     this.seafloor = this.add
-      .tileSprite(GAME_WIDTH / 2, GAME_HEIGHT - 64, GAME_WIDTH, 130, TextureKeys.seafloor)
+      .tileSprite(this.worldWidth / 2, this.worldHeight - 64, this.worldWidth, 130, TextureKeys.seafloor)
       .setDepth(2);
 
     for (let i = 0; i < 34; i += 1) {
-      this.bubbles.push(this.createBubble(Phaser.Math.Between(0, GAME_WIDTH), Phaser.Math.Between(20, GAME_HEIGHT)));
+      this.bubbles.push(this.createBubble(Phaser.Math.Between(0, this.worldWidth), Phaser.Math.Between(20, this.worldHeight)));
     }
 
-    for (let i = 0; i < Math.max(8, Math.floor(GAME_WIDTH / 150)); i += 1) {
+    for (let i = 0; i < Math.max(8, Math.floor(this.worldWidth / 150)); i += 1) {
       this.reefSprouts.push(
-        this.createReefSprout(Phaser.Math.Between(-80, GAME_WIDTH + 80), GAME_HEIGHT - Phaser.Math.Between(8, 24))
+        this.createReefSprout(Phaser.Math.Between(-80, this.worldWidth + 80), this.worldHeight - Phaser.Math.Between(8, 24))
       );
     }
 
     for (let i = 0; i < 7; i += 1) {
       const fish = this.add
-        .image(Phaser.Math.Between(0, GAME_WIDTH), Phaser.Math.Between(86, 360), TextureKeys.fish)
+        .image(Phaser.Math.Between(0, this.worldWidth), Phaser.Math.Between(86, 360), TextureKeys.fish)
         .setDepth(1.5)
         .setAlpha(Phaser.Math.FloatBetween(0.1, 0.22))
         .setScale(Phaser.Math.FloatBetween(0.42, 0.76));
@@ -204,7 +317,7 @@ export class PlayScene extends Phaser.Scene {
     this.powerUps = this.physics.add.group({ allowGravity: false });
     this.currents = this.physics.add.group({ allowGravity: false });
 
-    this.player = this.physics.add.sprite(PLAYER_X, 260, TextureKeys.octopus);
+    this.player = this.physics.add.sprite(this.getPlayerX(), 260, TextureKeys.octopus);
     this.player.setDepth(20);
     this.player.setScale(PLAYER_SCALE);
     this.player.setGravityY(880);
@@ -267,8 +380,8 @@ export class PlayScene extends Phaser.Scene {
 
   private updateBackground(deltaMs: number, speed: number): void {
     const seconds = deltaMs / 1000;
-    this.waterLines.x = GAME_WIDTH / 2 + Math.sin(this.elapsedMs / 2200) * 7;
-    this.waterLines.y = GAME_HEIGHT * 0.43 + Math.sin(this.elapsedMs / 1700) * 3;
+    this.waterLines.x = this.worldWidth / 2 + Math.sin(this.elapsedMs / 2200) * 7;
+    this.waterLines.y = this.worldHeight * 0.43 + Math.sin(this.elapsedMs / 1700) * 3;
     this.reefBack.tilePositionX += speed * 0.08 * seconds;
     this.seafloor.tilePositionX += speed * 0.2 * seconds;
 
@@ -277,7 +390,7 @@ export class PlayScene extends Phaser.Scene {
       bubble.y -= bubble.getData('rise') * seconds;
 
       if (bubble.y < -24 || bubble.x < -28) {
-        this.resetBubble(bubble, GAME_WIDTH + Phaser.Math.Between(0, 160), GAME_HEIGHT + Phaser.Math.Between(0, 120));
+        this.resetBubble(bubble, this.worldWidth + Phaser.Math.Between(0, 160), this.worldHeight + Phaser.Math.Between(0, 120));
       }
     }
 
@@ -285,7 +398,7 @@ export class PlayScene extends Phaser.Scene {
       fish.x -= (fish.getData('speed') + speed * 0.025) * seconds;
 
       if (fish.x < -70) {
-        fish.x = GAME_WIDTH + Phaser.Math.Between(40, 260);
+        fish.x = this.worldWidth + Phaser.Math.Between(40, 260);
         fish.y = Phaser.Math.Between(82, 360);
         fish.setAlpha(Phaser.Math.FloatBetween(0.1, 0.22));
         fish.setScale(Phaser.Math.FloatBetween(0.42, 0.76));
@@ -297,7 +410,7 @@ export class PlayScene extends Phaser.Scene {
       sprout.y = sprout.getData('baseY') + Math.sin(this.elapsedMs / 760 + sprout.getData('phase')) * 1.8;
 
       if (sprout.x < -130) {
-        this.resetReefSprout(sprout, GAME_WIDTH + Phaser.Math.Between(36, 190));
+        this.resetReefSprout(sprout, this.worldWidth + Phaser.Math.Between(36, 190));
       }
     }
   }
@@ -319,7 +432,7 @@ export class PlayScene extends Phaser.Scene {
       this.player.setVelocityY(10);
     }
 
-    if (this.player.y > GAME_HEIGHT + 52) {
+    if (this.player.y > this.worldHeight + 52) {
       this.endRun();
     }
 
@@ -360,8 +473,8 @@ export class PlayScene extends Phaser.Scene {
   }
 
   private spawnPattern(difficulty: Difficulty): number {
-    const x = GAME_WIDTH + 98;
-    const centerY = Phaser.Math.Between(142, GAME_HEIGHT - 132);
+    const x = this.worldWidth + (this.viewportProfile === 'portrait-narrow' ? 210 : 98);
+    const centerY = Phaser.Math.Between(142, this.worldHeight - 132);
     const roll = Phaser.Math.Between(0, 100);
     let patternCooldownMs = 0;
 
@@ -404,13 +517,13 @@ export class PlayScene extends Phaser.Scene {
   private spawnCoralGate(x: number, centerY: number, difficulty: Difficulty): void {
     const gap = difficulty.gapSize;
     this.createObstacle(TextureKeys.coral, x, Math.min(centerY - gap / 2 - 114, 114), 1, true);
-    this.createObstacle(TextureKeys.coral, x + 18, Math.max(centerY + gap / 2 + 114, GAME_HEIGHT - 114), 1, false);
+    this.createObstacle(TextureKeys.coral, x + 18, Math.max(centerY + gap / 2 + 114, this.worldHeight - 114), 1, false);
     this.spawnPearlTrail(x + 70, centerY, 3, difficulty.pearlChance);
   }
 
   private spawnSeaweedGate(x: number, centerY: number, difficulty: Difficulty): void {
     const gap = difficulty.gapSize + 18;
-    this.createObstacle(TextureKeys.seaweed, x, Math.max(centerY + gap / 2 + 111, GAME_HEIGHT - 111), 1, false);
+    this.createObstacle(TextureKeys.seaweed, x, Math.max(centerY + gap / 2 + 111, this.worldHeight - 111), 1, false);
     this.createObstacle(this.pickJellyfishKey(0.3), x + 96, Math.max(74, centerY - gap / 2 - 62), 0.96, false);
     this.spawnPearlTrail(x + 44, centerY + 14, 2, difficulty.pearlChance + 0.08);
   }
@@ -418,18 +531,18 @@ export class PlayScene extends Phaser.Scene {
   private spawnRockArch(x: number, centerY: number, difficulty: Difficulty): void {
     const gap = difficulty.gapSize - 8;
     this.createObstacle(TextureKeys.rock, x, Math.min(centerY - gap / 2 - 148, 120), 1, true);
-    this.createObstacle(TextureKeys.rock, x, Math.max(centerY + gap / 2 + 148, GAME_HEIGHT - 120), 1, false);
+    this.createObstacle(TextureKeys.rock, x, Math.max(centerY + gap / 2 + 148, this.worldHeight - 120), 1, false);
     this.spawnPearlTrail(x + 86, centerY - 12, difficulty.patternLevel >= 3 ? 4 : 3, difficulty.pearlChance);
   }
 
   private spawnJellyArc(x: number, centerY: number, difficulty: Difficulty): void {
-    const high = Phaser.Math.Clamp(centerY - 96, 70, GAME_HEIGHT - 90);
-    const low = Phaser.Math.Clamp(centerY + 92, 96, GAME_HEIGHT - 72);
+    const high = Phaser.Math.Clamp(centerY - 96, 70, this.worldHeight - 90);
+    const low = Phaser.Math.Clamp(centerY + 92, 96, this.worldHeight - 72);
     this.createObstacle(this.pickJellyfishKey(0.38), x, high, 1, false);
     this.createObstacle(TextureKeys.mine, x + 142, low, 0.94, false);
 
     if (difficulty.patternLevel >= 4) {
-      const trashY = Phaser.Math.Clamp(centerY + (centerY < GAME_HEIGHT / 2 ? 118 : -118), 88, GAME_HEIGHT - 88);
+      const trashY = Phaser.Math.Clamp(centerY + (centerY < this.worldHeight / 2 ? 118 : -118), 88, this.worldHeight - 88);
       this.createObstacle(TextureKeys.trash, x + 246, trashY, 0.96, false);
     }
 
@@ -437,7 +550,7 @@ export class PlayScene extends Phaser.Scene {
   }
 
   private spawnTrashField(x: number, centerY: number, difficulty: Difficulty): void {
-    const safeCenterY = Phaser.Math.Clamp(centerY, 150, GAME_HEIGHT - 150);
+    const safeCenterY = Phaser.Math.Clamp(centerY, 150, this.worldHeight - 150);
     this.createObstacle(TextureKeys.trash, x, safeCenterY - 128, 1, false);
     this.createObstacle(TextureKeys.mine, x + 136, safeCenterY + 104, 0.88, false);
     this.createObstacle(TextureKeys.trash, x + 268, safeCenterY - 72, 0.92, false);
@@ -497,7 +610,7 @@ export class PlayScene extends Phaser.Scene {
     for (const xOffset of xOffsets) {
       for (const yOffset of yOffsets) {
         const candidateX = x + xOffset;
-        const candidateY = Phaser.Math.Clamp(centerY + yOffset, 126, GAME_HEIGHT - 126);
+        const candidateY = Phaser.Math.Clamp(centerY + yOffset, 126, this.worldHeight - 126);
         const candidateBounds = new Phaser.Geom.Rectangle(
           candidateX - width / 2,
           candidateY - height / 2,
@@ -768,7 +881,7 @@ export class PlayScene extends Phaser.Scene {
   }
 
   private resetReefSprout(sprout: Phaser.GameObjects.Image, x: number): void {
-    sprout.setPosition(x, GAME_HEIGHT - Phaser.Math.Between(8, 24));
+    sprout.setPosition(x, this.worldHeight - Phaser.Math.Between(8, 24));
     sprout.setScale(Phaser.Math.FloatBetween(0.22, 0.34));
     sprout.setFlipX(Math.random() > 0.5);
     sprout.setData('baseY', sprout.y);

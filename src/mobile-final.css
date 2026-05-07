@@ -1,0 +1,811 @@
+/* Final mobile playability layer. Imported last to avoid editing fragile legacy locks. */
+:root {
+  --octodive-art-aspect: 1672 / 941;
+  --octodive-safe-top: env(safe-area-inset-top, 0px);
+  --octodive-safe-right: env(safe-area-inset-right, 0px);
+  --octodive-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --octodive-safe-left: env(safe-area-inset-left, 0px);
+}
+
+@supports (height: 100dvh) {
+  html,
+  body,
+  #app,
+  #game-root,
+  #ui-root {
+    height: 100dvh;
+  }
+}
+
+#game-root canvas {
+  max-width: 100vw;
+  max-height: 100dvh;
+}
+
+@media (max-width: 950px) and (orientation: landscape) {
+  html,
+  body,
+  #app,
+  #game-root,
+  #ui-root {
+    width: 100vw !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+  }
+
+  #ui-root .screen--menu,
+  #ui-root .screen--gameover,
+  #ui-root .screen--leaderboard {
+    width: 100vw !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    padding: 0 !important;
+    background-size: contain !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+  }
+
+  #ui-root .screen--menu {
+    background:
+      linear-gradient(90deg, rgba(0, 13, 38, 0.22), rgba(0, 13, 38, 0.03) 44%, rgba(0, 13, 38, 0.02)),
+      url("/assets/menu-kariyer-bg.png") center / cover no-repeat !important;
+  }
+
+  #ui-root .screen--menu::before {
+    display: none !important;
+  }
+
+  #ui-root .screen--menu .menu-copy {
+    left: calc(50% - min(100vw, 100dvh * var(--octodive-art-aspect)) * 0.43) !important;
+    top: calc(50% + min(100dvh, 100vw / var(--octodive-art-aspect)) * 0.03) !important;
+    width: calc(min(100vw, 100dvh * var(--octodive-art-aspect)) * 0.42) !important;
+    transform: translateY(-50%) !important;
+    gap: min(1.4vh, 0.55rem) !important;
+  }
+
+  #ui-root .screen--menu h1 {
+    width: min(35vw, 20rem) !important;
+    height: min(9vw, 5.1rem) !important;
+    opacity: 1 !important;
+  }
+
+  #ui-root .screen--menu h1::after {
+    content: "" !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: url("/assets/ui-ref/menu-title-kariyer-imagen.png") center / contain no-repeat !important;
+  }
+
+  #ui-root .screen--menu .primary-button {
+    width: min(34vw, 19.5rem) !important;
+    height: min(13vh, 4.25rem) !important;
+    background: url("/assets/ui-ref/ref-btn-play.png") center / 100% 100% no-repeat !important;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    opacity: 1 !important;
+  }
+
+  #ui-root .screen--menu .secondary-button {
+    width: min(28vw, 16rem) !important;
+    height: min(11vh, 3.7rem) !important;
+    background: url("/assets/ui-ref/ref-btn-leaderboard.png") center / 100% 100% no-repeat !important;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    opacity: 1 !important;
+  }
+
+  #ui-root .screen--menu .controls {
+    width: min(23vw, 9.5rem) !important;
+    height: min(7vh, 2.35rem) !important;
+    background: url("/assets/ui-ref/menu-controls-space-click-imagen.png") center / contain no-repeat !important;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    opacity: 1 !important;
+  }
+
+  #ui-root .screen--gameover,
+  #ui-root .screen--leaderboard {
+    background-size: contain !important;
+  }
+
+  #ui-root .hud {
+    top: max(0.35rem, var(--octodive-safe-top)) !important;
+    left: max(0.45rem, var(--octodive-safe-left)) !important;
+    right: max(0.45rem, var(--octodive-safe-right)) !important;
+  }
+
+  #ui-root .hud-pill {
+    width: min(18vw, 8.4rem) !important;
+    height: min(9.5vh, 3.35rem) !important;
+  }
+
+  #ui-root .hud__actions .icon-button {
+    width: min(9.5vh, 3.35rem) !important;
+    height: min(9.5vh, 3.35rem) !important;
+  }
+}
+
+@media (max-width: 760px) and (orientation: portrait) {
+  #ui-root .screen--menu {
+    background:
+      linear-gradient(180deg, rgba(0, 13, 38, 0.18), rgba(0, 13, 38, 0.36)),
+      url("/assets/menu-kariyer-bg.png") 57% center / cover no-repeat !important;
+  }
+
+  #ui-root .screen--menu .menu-copy {
+    left: 50% !important;
+    top: max(8.5rem, calc(var(--octodive-safe-top) + 18vh)) !important;
+    width: min(22rem, calc(100vw - 2rem)) !important;
+    transform: translateX(-50%) !important;
+    gap: clamp(0.35rem, 1.6vh, 0.8rem) !important;
+  }
+
+  #ui-root .screen--menu h1 {
+    width: min(20rem, 78vw) !important;
+    height: clamp(4.4rem, 18vw, 5.7rem) !important;
+  }
+
+  #ui-root .screen--menu .menu-actions {
+    width: min(20rem, 82vw) !important;
+    gap: 0.45rem !important;
+  }
+
+  #ui-root .screen--menu .primary-button,
+  #ui-root .screen--menu .secondary-button {
+    width: 100% !important;
+    height: clamp(3.65rem, 9.2vh, 4.55rem) !important;
+  }
+
+  #ui-root .screen--menu .controls {
+    width: min(15rem, 64vw) !important;
+    height: clamp(3.1rem, 12vw, 4rem) !important;
+  }
+
+  #ui-root .screen--gameover,
+  #ui-root .screen--leaderboard {
+    display: grid !important;
+    place-items: center !important;
+    padding: max(0.6rem, var(--octodive-safe-top)) max(0.55rem, var(--octodive-safe-right))
+      max(0.7rem, var(--octodive-safe-bottom)) max(0.55rem, var(--octodive-safe-left)) !important;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(104, 232, 255, 0.22), transparent 22rem),
+      linear-gradient(180deg, #0882a4, #063852 58%, #03182d) !important;
+  }
+
+  #ui-root .screen--gameover .panel,
+  #ui-root .screen--leaderboard .panel--leaderboard {
+    position: relative !important;
+    inset: auto !important;
+    width: min(100%, 27rem) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - var(--octodive-safe-top) - var(--octodive-safe-bottom) - 1.2rem) !important;
+    overflow: hidden !important;
+    padding: clamp(1rem, 4vw, 1.35rem) !important;
+    border: 1px solid rgba(126, 238, 255, 0.36) !important;
+    border-radius: 1rem !important;
+    background: linear-gradient(145deg, rgba(8, 60, 88, 0.96), rgba(4, 18, 38, 0.97)) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 1.4rem 4rem rgba(0, 0, 0, 0.45) !important;
+  }
+
+  #ui-root .screen--gameover .panel {
+    display: grid !important;
+    gap: 0.75rem !important;
+  }
+
+  #ui-root .screen--gameover h2,
+  #ui-root .screen--leaderboard h2 {
+    position: relative !important;
+    inset: auto !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    color: #fffaf4 !important;
+    -webkit-text-fill-color: #fffaf4 !important;
+    font-size: clamp(2rem, 9vw, 2.7rem) !important;
+    font-style: italic !important;
+    font-weight: 950 !important;
+    line-height: 0.9 !important;
+    text-align: center !important;
+    text-shadow: 0 2px 0 #0a4f89, 0 0.45rem 0.9rem rgba(0, 9, 40, 0.5) !important;
+    background: none !important;
+  }
+
+  #ui-root .screen--gameover .result-grid {
+    position: relative !important;
+    inset: auto !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    height: auto !important;
+    gap: 0.45rem !important;
+  }
+
+  #ui-root .screen--gameover .result-grid div {
+    position: relative !important;
+    inset: auto !important;
+    display: grid !important;
+    min-height: 4.2rem !important;
+    padding: 0.55rem 0.35rem !important;
+    place-items: center !important;
+    border-radius: 0.7rem !important;
+    background: rgba(2, 31, 58, 0.62) !important;
+  }
+
+  #ui-root .screen--gameover .result-grid div:nth-child(4) {
+    display: none !important;
+  }
+
+  #ui-root .screen--gameover .result-grid span {
+    display: none !important;
+  }
+
+  #ui-root .screen--gameover .result-grid strong {
+    position: static !important;
+    width: auto !important;
+    font-size: clamp(1.2rem, 6.2vw, 1.8rem) !important;
+    transform: none !important;
+  }
+
+  #ui-root .screen--gameover .name-field,
+  #ui-root .screen--gameover .submit-status,
+  #ui-root .screen--gameover .panel-actions {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+  }
+
+  #ui-root .screen--gameover .name-field input {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: 3.4rem !important;
+    padding: 0 0.85rem !important;
+    border-radius: 0.72rem !important;
+    background: rgba(2, 16, 33, 0.68) !important;
+  }
+
+  #ui-root .screen--gameover .submit-status {
+    min-height: 1rem !important;
+    font-size: 0.78rem !important;
+    white-space: normal !important;
+  }
+
+  #ui-root .screen--gameover .panel-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.45rem !important;
+    pointer-events: auto !important;
+  }
+
+  #ui-root .screen--gameover .primary-button,
+  #ui-root .screen--gameover .secondary-button,
+  #ui-root .screen--gameover .ghost-button {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: 3.35rem !important;
+    border-radius: 0.8rem !important;
+    background: linear-gradient(180deg, #ff7e92, #ca2b6f) !important;
+    color: #fffaf4 !important;
+    -webkit-text-fill-color: #fffaf4 !important;
+    text-shadow: 0 2px 0 #8c2852 !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-heading {
+    display: block !important;
+  }
+
+  #ui-root .screen--leaderboard .tabs,
+  #ui-root .screen--leaderboard .leaderboard-list,
+  #ui-root .screen--leaderboard .leaderboard-actions {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+  }
+
+  #ui-root .screen--leaderboard .tabs {
+    margin: 0.65rem 0 0.45rem !important;
+  }
+
+  #ui-root .screen--leaderboard .tab {
+    height: 2.7rem !important;
+    font-size: 0.95rem !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-list {
+    display: grid !important;
+    grid-template-rows: repeat(8, minmax(0, 1fr)) !important;
+    gap: 0.22rem !important;
+    max-height: min(47dvh, 24rem) !important;
+    overflow: hidden !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-row {
+    grid-template-columns: 2rem minmax(0, 1fr) max-content !important;
+    min-height: 2.35rem !important;
+    padding: 0.2rem 0.42rem !important;
+    gap: 0.35rem !important;
+    border-radius: 0.62rem !important;
+    background: rgba(2, 31, 58, 0.58) !important;
+  }
+
+  #ui-root .screen--leaderboard .rank-badge {
+    display: grid !important;
+    width: 1.65rem !important;
+    height: 1.65rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-avatar,
+  #ui-root .screen--leaderboard .score-crown {
+    display: none !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-player {
+    grid-column: 2 !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-player strong,
+  #ui-root .screen--leaderboard .leaderboard-score {
+    font-size: clamp(0.78rem, 3.7vw, 1.02rem) !important;
+    transform: none !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-actions {
+    display: grid !important;
+    grid-template-columns: 0.85fr 1.15fr !important;
+    gap: 0.55rem !important;
+    margin-top: 0.65rem !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-button {
+    min-height: 3rem !important;
+    border-radius: 0.75rem !important;
+    background: linear-gradient(180deg, #26d9f5, #047ab7) !important;
+    color: #fffaf4 !important;
+    -webkit-text-fill-color: #fffaf4 !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-button > * {
+    opacity: 1 !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-button strong {
+    font-size: 1.05rem !important;
+  }
+
+  #ui-root .hud {
+    top: max(0.35rem, var(--octodive-safe-top)) !important;
+    left: max(0.35rem, var(--octodive-safe-left)) !important;
+    right: max(0.35rem, var(--octodive-safe-right)) !important;
+  }
+
+  #ui-root .hud__cluster {
+    max-width: calc(100vw - 5.7rem) !important;
+    gap: 0.2rem !important;
+  }
+
+  #ui-root .hud-pill {
+    width: 6.1rem !important;
+    height: 2.5rem !important;
+  }
+
+  #ui-root .hud-pill strong {
+    font-size: 0.82rem !important;
+  }
+
+  #ui-root .hud__actions .icon-button {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+  }
+}
+
+/* Real-phone correction lock. Keep this at EOF; it wins over legacy bitmap locks. */
+@media (pointer: coarse) and (orientation: portrait) {
+  html,
+  body,
+  #app,
+  #game-root,
+  #ui-root {
+    width: var(--octodive-vvw, 100vw) !important;
+    height: var(--octodive-vvh, 100dvh) !important;
+    min-height: var(--octodive-vvh, 100dvh) !important;
+    overflow: hidden !important;
+  }
+
+  #game-root,
+  #ui-root {
+    position: fixed !important;
+    inset: 0 auto auto 0 !important;
+  }
+
+  #game-root canvas {
+    width: var(--octodive-vvw, 100vw) !important;
+    height: var(--octodive-vvh, 100dvh) !important;
+    max-width: none !important;
+    max-height: none !important;
+  }
+
+  #ui-root .screen {
+    width: var(--octodive-vvw, 100vw) !important;
+    height: var(--octodive-vvh, 100dvh) !important;
+    min-height: var(--octodive-vvh, 100dvh) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #ui-root .screen--menu {
+    background:
+      linear-gradient(180deg, rgba(0, 13, 38, 0.1), rgba(0, 13, 38, 0.24)),
+      url("/assets/menu-kariyer-bg.png") 68% center / cover no-repeat !important;
+  }
+
+  #ui-root .screen--menu .menu-copy {
+    left: 50% !important;
+    top: clamp(13.2rem, 31vh, 18rem) !important;
+    width: min(22rem, calc(100vw - 2rem)) !important;
+    transform: translateX(-50%) !important;
+    gap: clamp(0.45rem, 1.5vh, 0.8rem) !important;
+  }
+
+  #ui-root .screen--menu h1 {
+    width: min(20rem, 78vw) !important;
+    height: clamp(4rem, 15.5vw, 5.4rem) !important;
+  }
+
+  #ui-root .screen--menu .menu-actions {
+    width: min(20.2rem, 82vw) !important;
+    gap: clamp(0.45rem, 1.4vh, 0.75rem) !important;
+  }
+
+  #ui-root .screen--menu .primary-button,
+  #ui-root .screen--menu .secondary-button {
+    width: 100% !important;
+    height: clamp(3.45rem, 7.7vh, 4.35rem) !important;
+  }
+
+  #ui-root .screen--menu .controls {
+    width: min(15.5rem, 64vw) !important;
+    height: clamp(2.6rem, 8vw, 3.45rem) !important;
+  }
+
+  #ui-root .hud {
+    top: max(0.7rem, calc(var(--octodive-safe-top) + 0.35rem)) !important;
+    left: max(0.35rem, var(--octodive-safe-left)) !important;
+    right: max(0.35rem, var(--octodive-safe-right)) !important;
+  }
+
+  #ui-root .hud__cluster {
+    max-width: calc(100vw - 5.8rem) !important;
+  }
+
+  #ui-root .hud-pill {
+    width: clamp(5.3rem, 26vw, 6.35rem) !important;
+    height: clamp(2.25rem, 6.8vh, 2.65rem) !important;
+  }
+
+  #ui-root .hud__actions .icon-button {
+    width: clamp(2.45rem, 11.5vw, 2.85rem) !important;
+    height: clamp(2.45rem, 11.5vw, 2.85rem) !important;
+  }
+
+  #ui-root .screen--gameover,
+  #ui-root .screen--leaderboard {
+    display: grid !important;
+    place-items: center !important;
+    padding: max(0.6rem, var(--octodive-safe-top)) max(0.55rem, var(--octodive-safe-right))
+      max(0.7rem, var(--octodive-safe-bottom)) max(0.55rem, var(--octodive-safe-left)) !important;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(104, 232, 255, 0.18), transparent 18rem),
+      linear-gradient(180deg, #0b97b4 0%, #075579 46%, #02172f 100%) !important;
+  }
+
+  #ui-root .screen--gameover::before,
+  #ui-root .screen--gameover::after,
+  #ui-root .screen--gameover .panel::before,
+  #ui-root .screen--gameover .panel::after,
+  #ui-root .screen--leaderboard::before,
+  #ui-root .screen--leaderboard::after,
+  #ui-root .screen--leaderboard .panel--leaderboard::before,
+  #ui-root .screen--leaderboard .panel--leaderboard::after {
+    display: none !important;
+  }
+
+  #ui-root .screen--gameover .panel,
+  #ui-root .screen--leaderboard .panel--leaderboard {
+    position: relative !important;
+    inset: auto !important;
+    display: grid !important;
+    width: min(100%, 27rem) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(var(--octodive-vvh, 100dvh) - var(--octodive-safe-top) - var(--octodive-safe-bottom) - 1.4rem) !important;
+    overflow: hidden !important;
+    padding: clamp(0.9rem, 3.8vw, 1.25rem) !important;
+    border: 1px solid rgba(126, 238, 255, 0.36) !important;
+    border-radius: 1rem !important;
+    background: linear-gradient(145deg, rgba(8, 60, 88, 0.96), rgba(4, 18, 38, 0.97)) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 1.4rem 4rem rgba(0, 0, 0, 0.45) !important;
+    transform: none !important;
+  }
+
+  #ui-root .screen--gameover .panel {
+    gap: clamp(0.48rem, 1.6vh, 0.72rem) !important;
+  }
+
+  #ui-root .screen--gameover .panel-kicker {
+    display: none !important;
+  }
+
+  #ui-root .screen--gameover h2,
+  #ui-root .screen--leaderboard h2 {
+    position: relative !important;
+    inset: auto !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    color: #fffaf4 !important;
+    -webkit-text-fill-color: #fffaf4 !important;
+    font-size: clamp(2rem, 8.3vw, 2.7rem) !important;
+    font-style: italic !important;
+    font-weight: 950 !important;
+    line-height: 0.95 !important;
+    text-align: center !important;
+    text-shadow: 0 2px 0 #0a4f89, 0 0.45rem 0.9rem rgba(0, 9, 40, 0.5) !important;
+    background: none !important;
+  }
+
+  #ui-root .screen--gameover .result-grid,
+  #ui-root .screen--gameover .name-field,
+  #ui-root .screen--gameover .submit-status,
+  #ui-root .screen--gameover .panel-actions {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+  }
+
+  #ui-root .screen--gameover .result-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0.42rem !important;
+  }
+
+  #ui-root .screen--gameover .result-grid div {
+    position: relative !important;
+    inset: auto !important;
+    display: grid !important;
+    min-height: clamp(3.3rem, 10vh, 4.25rem) !important;
+    padding: 0.48rem 0.28rem !important;
+    place-items: center !important;
+    border-radius: 0.72rem !important;
+    background: rgba(2, 31, 58, 0.62) !important;
+  }
+
+  #ui-root .screen--gameover .result-grid div:nth-child(4),
+  #ui-root .screen--gameover .result-grid span,
+  #ui-root .screen--gameover .name-field span {
+    display: none !important;
+  }
+
+  #ui-root .screen--gameover .result-grid strong {
+    position: static !important;
+    width: auto !important;
+    font-size: clamp(1.2rem, 5.8vw, 1.75rem) !important;
+    transform: none !important;
+  }
+
+  #ui-root .screen--gameover .name-field input {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: clamp(3.15rem, 8vh, 3.55rem) !important;
+    padding: 0 0.85rem !important;
+    border-radius: 0.74rem !important;
+    background: rgba(2, 16, 33, 0.68) !important;
+    font-size: clamp(1.05rem, 4.6vw, 1.35rem) !important;
+  }
+
+  #ui-root .screen--gameover .submit-status {
+    min-height: 1rem !important;
+    font-size: clamp(0.7rem, 3.2vw, 0.82rem) !important;
+    white-space: normal !important;
+  }
+
+  #ui-root .screen--gameover .panel-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.45rem !important;
+  }
+
+  #ui-root .screen--gameover .primary-button,
+  #ui-root .screen--gameover .secondary-button,
+  #ui-root .screen--gameover .ghost-button {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: clamp(3rem, 7.6vh, 3.35rem) !important;
+    border-radius: 0.8rem !important;
+    background: linear-gradient(180deg, #ff7e92, #ca2b6f) !important;
+    color: #fffaf4 !important;
+    -webkit-text-fill-color: #fffaf4 !important;
+    font-size: clamp(1.2rem, 5.4vw, 1.7rem) !important;
+    text-shadow: 0 2px 0 #8c2852 !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-heading,
+  #ui-root .screen--leaderboard .tabs,
+  #ui-root .screen--leaderboard .leaderboard-list,
+  #ui-root .screen--leaderboard .leaderboard-actions {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-heading {
+    display: block !important;
+  }
+
+  #ui-root .screen--leaderboard .panel-kicker,
+  #ui-root .screen--leaderboard .leaderboard-heading .icon-button,
+  #ui-root .screen--leaderboard .leaderboard-table-head,
+  #ui-root .screen--leaderboard .leaderboard-status {
+    display: none !important;
+  }
+
+  #ui-root .screen--leaderboard .tabs {
+    display: block !important;
+    margin: 0.6rem 0 0.45rem !important;
+  }
+
+  #ui-root .screen--leaderboard .tab {
+    width: 100% !important;
+    height: clamp(2.35rem, 6.4vh, 2.8rem) !important;
+    font-size: clamp(0.82rem, 3.7vw, 1rem) !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-list {
+    display: grid !important;
+    grid-template-rows: repeat(8, minmax(0, 1fr)) !important;
+    gap: 0.22rem !important;
+    max-height: min(47vh, 24rem) !important;
+    overflow: hidden !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-row {
+    display: grid !important;
+    grid-template-columns: 2rem minmax(0, 1fr) max-content !important;
+    min-height: clamp(2.05rem, 5.1vh, 2.45rem) !important;
+    padding: 0.18rem 0.42rem !important;
+    gap: 0.35rem !important;
+    align-items: center !important;
+    border-radius: 0.62rem !important;
+    background: rgba(2, 31, 58, 0.58) !important;
+  }
+
+  #ui-root .screen--leaderboard .rank-badge {
+    display: grid !important;
+    width: 1.65rem !important;
+    height: 1.65rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-avatar,
+  #ui-root .screen--leaderboard .score-crown {
+    display: none !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-player {
+    grid-column: 2 !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-player strong,
+  #ui-root .screen--leaderboard .leaderboard-score {
+    font-size: clamp(0.76rem, 3.45vw, 1.02rem) !important;
+    transform: none !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-actions {
+    display: grid !important;
+    grid-template-columns: 0.85fr 1.15fr !important;
+    gap: 0.55rem !important;
+    margin-top: 0.65rem !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-button {
+    min-height: clamp(2.75rem, 7.3vh, 3.15rem) !important;
+    border-radius: 0.75rem !important;
+    background: linear-gradient(180deg, #26d9f5, #047ab7) !important;
+    color: #fffaf4 !important;
+    -webkit-text-fill-color: #fffaf4 !important;
+  }
+
+  #ui-root .screen--leaderboard .leaderboard-button > * {
+    opacity: 1 !important;
+  }
+}
+
+@media (pointer: coarse) and (orientation: landscape) {
+  html,
+  body,
+  #app,
+  #game-root,
+  #ui-root {
+    width: var(--octodive-vvw, 100vw) !important;
+    height: var(--octodive-vvh, 100dvh) !important;
+    min-height: var(--octodive-vvh, 100dvh) !important;
+    overflow: hidden !important;
+  }
+
+  #game-root,
+  #ui-root {
+    position: fixed !important;
+    inset: 0 auto auto 0 !important;
+  }
+
+  #game-root canvas {
+    width: var(--octodive-vvw, 100vw) !important;
+    height: var(--octodive-vvh, 100dvh) !important;
+    max-width: none !important;
+    max-height: none !important;
+  }
+
+  #ui-root .screen {
+    width: var(--octodive-vvw, 100vw) !important;
+    height: var(--octodive-vvh, 100dvh) !important;
+    min-height: var(--octodive-vvh, 100dvh) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #ui-root .screen--menu {
+    background:
+      linear-gradient(90deg, rgba(0, 13, 38, 0.16), rgba(0, 13, 38, 0.03) 46%, rgba(0, 13, 38, 0.02)),
+      url("/assets/menu-kariyer-bg.png") center / cover no-repeat !important;
+  }
+
+  #ui-root .screen--menu .menu-copy {
+    left: clamp(3.8rem, 13vw, 8.2rem) !important;
+    top: 46% !important;
+    width: min(20rem, 38vw) !important;
+    transform: translateY(-47%) !important;
+    gap: clamp(0.25rem, 1.2vh, 0.5rem) !important;
+  }
+
+  #ui-root .screen--menu h1 {
+    width: min(18.5rem, 36vw) !important;
+    height: min(4.85rem, 18vh) !important;
+  }
+
+  #ui-root .screen--menu .primary-button {
+    width: min(18.8rem, 36vw) !important;
+    height: min(4rem, 14.8vh) !important;
+  }
+
+  #ui-root .screen--menu .secondary-button {
+    width: min(15.5rem, 30vw) !important;
+    height: min(3.4rem, 12.6vh) !important;
+  }
+
+  #ui-root .screen--menu .controls {
+    width: min(10.5rem, 22vw) !important;
+    height: min(2rem, 7.4vh) !important;
+  }
+
+  #ui-root .hud {
+    top: max(0.35rem, var(--octodive-safe-top)) !important;
+    left: max(0.45rem, var(--octodive-safe-left)) !important;
+    right: max(0.45rem, var(--octodive-safe-right)) !important;
+  }
+}

@@ -3,12 +3,14 @@ import Phaser from 'phaser';
 import './style.css';
 import './gameover-reference.css';
 import './leaderboard-reference.css';
+import './mobile-final.css';
 import { AdminApp } from './admin/AdminApp.ts';
 import { AudioManager } from './game/audio/AudioManager.ts';
 import { PLAY_SCENE_KEY, PlayScene } from './game/scenes/PlayScene.ts';
 import { createLeaderboard } from './game/services/leaderboard.ts';
 import { GameUi } from './game/ui/GameUi.ts';
-import { GAME_HEIGHT, GAME_WIDTH, GameEvents, type SoundEffectName } from './game/types.ts';
+import { GameEvents, type SoundEffectName } from './game/types.ts';
+import { getViewportMetrics, type ViewportMetrics } from './game/viewport.ts';
 
 const gameRoot = document.querySelector<HTMLElement>('#game-root');
 const uiRoot = document.querySelector<HTMLElement>('#ui-root');
@@ -23,11 +25,20 @@ if (window.location.pathname.replace(/\/$/, '') === '/admin') {
   gameRoot.setAttribute('hidden', 'true');
   new AdminApp({ root: uiRoot });
 } else {
+const initialViewport = getViewportMetrics();
+
+function applyViewportCssVars(viewport: ViewportMetrics): void {
+  document.documentElement.style.setProperty('--octodive-vvw', `${viewport.viewportWidth}px`);
+  document.documentElement.style.setProperty('--octodive-vvh', `${viewport.viewportHeight}px`);
+}
+
+applyViewportCssVars(initialViewport);
+
 const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: gameRoot,
-  width: GAME_WIDTH,
-  height: GAME_HEIGHT,
+  width: initialViewport.gameWidth,
+  height: initialViewport.gameHeight,
   backgroundColor: '#052b46',
   pixelArt: false,
   antialias: true,
@@ -41,8 +52,8 @@ const game = new Phaser.Game({
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: GAME_WIDTH,
-    height: GAME_HEIGHT
+    width: initialViewport.gameWidth,
+    height: initialViewport.gameHeight
   },
   scene: [PlayScene]
 });
@@ -85,6 +96,36 @@ new GameUi({
   togglePause: () => getPlayScene().togglePause(),
   setPaused: (paused) => getPlayScene().setPaused(paused)
 });
+
+let resizeFrame = 0;
+let lastGameWidth = initialViewport.gameWidth;
+let lastGameHeight = initialViewport.gameHeight;
+let lastProfile = initialViewport.profile;
+
+function syncViewport(): void {
+  window.cancelAnimationFrame(resizeFrame);
+  resizeFrame = window.requestAnimationFrame(() => {
+    const viewport = getViewportMetrics();
+    const widthChanged = Math.abs(viewport.gameWidth - lastGameWidth) > 2;
+    const heightChanged = Math.abs(viewport.gameHeight - lastGameHeight) > 2;
+    const profileChanged = viewport.profile !== lastProfile;
+
+    if (!widthChanged && !heightChanged && !profileChanged) {
+      return;
+    }
+
+    lastGameWidth = viewport.gameWidth;
+    lastGameHeight = viewport.gameHeight;
+    lastProfile = viewport.profile;
+    applyViewportCssVars(viewport);
+    game.scale.resize(viewport.gameWidth, viewport.gameHeight);
+    game.events.emit(GameEvents.viewportChange, viewport);
+  });
+}
+
+window.addEventListener('resize', syncViewport);
+window.addEventListener('orientationchange', syncViewport);
+window.visualViewport?.addEventListener('resize', syncViewport);
 
 window.addEventListener('blur', () => {
   const scene = getPlayScene();

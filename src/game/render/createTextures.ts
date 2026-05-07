@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-import { GAME_HEIGHT, GAME_WIDTH } from '../types.ts';
+import { BASE_GAME_HEIGHT, DEFAULT_GAME_WIDTH } from '../viewport.ts';
 
 export const TextureKeys = {
   background: 'generated:bg-gradient',
@@ -27,11 +27,13 @@ export const TextureKeys = {
 
 type DrawCallback = (context: CanvasRenderingContext2D, width: number, height: number) => void;
 
-export function createGameTextures(scene: Phaser.Scene): void {
-  addTexture(scene, TextureKeys.background, GAME_WIDTH, GAME_HEIGHT, drawBackground);
-  addTexture(scene, TextureKeys.waterLines, GAME_WIDTH + 240, 620, drawWaterLines);
-  addTexture(scene, TextureKeys.reefBack, GAME_WIDTH, 170, drawReefBack);
-  addTexture(scene, TextureKeys.seafloor, GAME_WIDTH, 130, drawSeafloor);
+export function createGameTextures(scene: Phaser.Scene, width = DEFAULT_GAME_WIDTH, height = BASE_GAME_HEIGHT): void {
+  const generatedWidth = Math.max(width, DEFAULT_GAME_WIDTH);
+
+  addTexture(scene, TextureKeys.background, generatedWidth, height, drawBackground);
+  addTexture(scene, TextureKeys.waterLines, generatedWidth + 240, 620, drawWaterLines);
+  addTexture(scene, TextureKeys.reefBack, generatedWidth, 170, drawReefBack);
+  addTexture(scene, TextureKeys.seafloor, generatedWidth, 130, drawSeafloor);
   TextureKeys.octopusFrames.forEach((key, index) => {
     addTexture(scene, key, 132, 112, (context, width, height) => drawOctopus(context, width, height, index));
   });

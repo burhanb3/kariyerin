@@ -1,9 +1,7 @@
-export const GAME_HEIGHT = 540;
+import { BASE_GAME_HEIGHT, DEFAULT_GAME_WIDTH, type ViewportMetrics } from './viewport.ts';
 
-const DEFAULT_ASPECT = 16 / 9;
-const viewportAspect = typeof window === 'undefined' ? DEFAULT_ASPECT : window.innerWidth / window.innerHeight;
-
-export const GAME_WIDTH = Math.round(GAME_HEIGHT * viewportAspect);
+export const GAME_HEIGHT = BASE_GAME_HEIGHT;
+export const GAME_WIDTH = DEFAULT_GAME_WIDTH;
 
 export const GameEvents = {
   score: 'octodash:score',
@@ -11,9 +9,12 @@ export const GameEvents = {
   gameOver: 'octodash:game-over',
   runStart: 'octodash:run-start',
   pauseChange: 'octodash:pause-change',
+  viewportChange: 'octodash:viewport-change',
   muteChange: 'octodash:mute-change',
   sfx: 'octodash:sfx'
 } as const;
+
+export type ViewportChangePayload = ViewportMetrics;
 
 export type ScorePayload = {
   score: number;
