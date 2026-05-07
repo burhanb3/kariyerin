@@ -57,6 +57,9 @@ export class GameUi {
     this.bindDomEvents();
     this.bindGameEvents();
     this.updateMuteButtons();
+    window.setTimeout(() => {
+      void this.audio.startMusic();
+    }, 500);
     void this.renderLeaderboard('all-time');
   }
 

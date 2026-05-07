@@ -5,8 +5,8 @@ import { GameEvents } from '../types.ts';
 type OscillatorKind = OscillatorType;
 
 const MUSIC_SRC = '/assets/audio/ink-under-waves.mp3';
-const MASTER_VOLUME = 0.24;
-const MUSIC_VOLUME = 0.34;
+const MASTER_VOLUME = 0.42;
+const MUSIC_VOLUME = 0.14;
 
 export class AudioManager {
   muted: boolean;
@@ -40,14 +40,17 @@ export class AudioManager {
       await this.context.resume();
     }
 
-    if (!this.music) {
-      this.music = new Audio(MUSIC_SRC);
-      this.music.loop = true;
-      this.music.preload = 'auto';
-      this.music.volume = this.muted ? 0 : MUSIC_VOLUME;
+    await this.startMusic();
+  }
+
+  async startMusic(): Promise<void> {
+    if (this.muted) {
+      return;
     }
 
-    if (!this.muted && this.music.paused) {
+    this.ensureMusic();
+
+    if (this.music && this.music.paused) {
       await this.music.play().catch(() => {
         // Mobile browsers can still reject autoplay outside a direct gesture.
       });
@@ -114,6 +117,18 @@ export class AudioManager {
         callback(this.context, this.master);
       }
     });
+  }
+
+  private ensureMusic(): void {
+    if (this.music) {
+      this.music.volume = this.muted ? 0 : MUSIC_VOLUME;
+      return;
+    }
+
+    this.music = new Audio(MUSIC_SRC);
+    this.music.loop = true;
+    this.music.preload = 'auto';
+    this.music.volume = this.muted ? 0 : MUSIC_VOLUME;
   }
 
   private tone(frequency: number, duration: number, kind: OscillatorKind, gainValue: number, delay = 0): void {
