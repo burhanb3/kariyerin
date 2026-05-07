@@ -8,7 +8,6 @@ type AdminAppOptions = {
   root: HTMLElement;
 };
 
-const adminCodeKey = 'octodive.adminCode.v1';
 const statusLabels: Record<ScoreStatus, string> = {
   valid: 'Geçerli',
   suspicious: 'Şüpheli',
@@ -25,13 +24,14 @@ const statusActions: Array<{ status: ScoreStatus; label: string }> = [
 
 export class AdminApp {
   private readonly root: HTMLElement;
+  private adminCode = '';
   private rows: AdminScoreEntry[] = [];
 
   constructor(options: AdminAppOptions) {
     this.root = options.root;
     this.root.innerHTML = this.createMarkup();
     this.bindEvents();
-    void this.loadScores();
+    this.renderSummary();
   }
 
   private createMarkup(): string {
@@ -52,7 +52,7 @@ export class AdminApp {
         </section>
 
         <section class="admin-summary" data-admin-summary></section>
-        <p class="admin-status" data-admin-status>Skorlar yükleniyor...</p>
+        <p class="admin-status" data-admin-status>Skorları görmek için admin kodunu girin.</p>
         <section class="admin-score-list" data-admin-score-list></section>
       </main>
     `;
@@ -62,7 +62,7 @@ export class AdminApp {
     this.query<HTMLFormElement>('[data-admin-login]').addEventListener('submit', (event) => {
       event.preventDefault();
       const code = this.query<HTMLInputElement>('[data-admin-code]').value.trim();
-      window.sessionStorage.setItem(adminCodeKey, code);
+      this.adminCode = code;
       void this.loadScores();
     });
 
@@ -87,6 +87,14 @@ export class AdminApp {
 
   private async loadScores(): Promise<void> {
     const status = this.query<HTMLElement>('[data-admin-status]');
+
+    if (!this.adminCode) {
+      this.rows = [];
+      this.renderRows();
+      status.textContent = 'Skorları görmek için admin kodunu girin.';
+      return;
+    }
+
     status.textContent = 'Skorlar yükleniyor...';
 
     try {
@@ -104,6 +112,7 @@ export class AdminApp {
       status.textContent = `${this.rows.length} skor listelendi. Public tabloda sadece geçerli skorlar görünür.`;
     } catch (error) {
       status.textContent = error instanceof Error ? error.message : 'Admin skorları alınamadı.';
+      this.rows = [];
       this.query<HTMLElement>('[data-admin-score-list]').innerHTML = '';
       this.renderSummary();
     }
@@ -206,7 +215,7 @@ export class AdminApp {
 
   private createAdminHeaders(): HeadersInit {
     return {
-      'x-admin-code': window.sessionStorage.getItem(adminCodeKey) ?? ''
+      'x-admin-code': this.adminCode
     };
   }
 

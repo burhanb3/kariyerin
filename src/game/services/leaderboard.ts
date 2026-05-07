@@ -192,7 +192,7 @@ export class EventApiLeaderboardAdapter implements LeaderboardAdapter {
 
   constructor(baseUrl = '', fetcher: typeof fetch = fetch) {
     this.baseUrl = normalizeApiBase(baseUrl);
-    this.fetcher = fetcher;
+    this.fetcher = fetcher === fetch ? fetch.bind(globalThis) : fetcher;
   }
 
   private createEndpoint(path: string): string {

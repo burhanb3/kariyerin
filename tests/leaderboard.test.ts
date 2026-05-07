@@ -130,4 +130,41 @@ describe('leaderboard fallback', () => {
 
     assert.deepEqual(rows, []);
   });
+
+  test('binds the default browser fetch before calling same-origin submit', async () => {
+    const previousFetch = globalThis.fetch;
+    const expectedThis = globalThis;
+
+    globalThis.fetch = function boundFetchCheck(this: unknown, input: RequestInfo | URL, init?: RequestInit) {
+      assert.equal(this, expectedThis);
+      assert.equal(String(input), '/api/submit-score');
+      assert.equal(init?.method, 'POST');
+
+      return Promise.resolve(Response.json({
+        entry: {
+          id: 'bound-fetch-score',
+          playerName: 'Ada Lovelace',
+          score: 420,
+          pearls: 3,
+          createdAt: '2026-05-07T10:00:00.000Z'
+        }
+      }));
+    } as typeof fetch;
+
+    try {
+      const api = new EventApiLeaderboardAdapter('');
+      const submitted = await api.submitScore({
+        playerName: 'Ada Lovelace',
+        score: 420,
+        pearls: 3,
+        elapsedMs: 8000,
+        clientId: 'client-1',
+        runId: 'run-1'
+      });
+
+      assert.equal(submitted.id, 'bound-fetch-score');
+    } finally {
+      globalThis.fetch = previousFetch;
+    }
+  });
 });
