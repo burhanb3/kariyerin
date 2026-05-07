@@ -53,6 +53,7 @@ export class GameUi {
     this.setPaused = options.setPaused;
 
     this.root.innerHTML = this.createMarkup();
+    this.bindAudioUnlockEvents();
     this.bindDomEvents();
     this.bindGameEvents();
     this.updateMuteButtons();
@@ -88,6 +89,9 @@ export class GameUi {
       <div class="toast" data-toast aria-live="polite"></div>
 
       <section class="screen screen--menu is-active" data-screen="menu">
+        <button class="menu-sound-button" type="button" data-action="mute" aria-label="Sesi aç veya kapat">
+          <span class="icon-sound" aria-hidden="true"></span>
+        </button>
         <div class="menu-layout">
           <div class="menu-copy">
             <h1>KARİYER-IN</h1>
@@ -250,6 +254,18 @@ export class GameUi {
         'İsim alındı. Yeni rekor otomatik gönderilecek.'
       );
     });
+  }
+
+  private bindAudioUnlockEvents(): void {
+    const unlock = (): void => {
+      if (!this.audio.muted) {
+        void this.audio.unlock();
+      }
+    };
+
+    this.root.addEventListener('pointerdown', unlock, { capture: true });
+    this.root.addEventListener('touchstart', unlock, { capture: true, passive: true });
+    window.addEventListener('keydown', unlock, { capture: true });
   }
 
   private bindGameEvents(): void {

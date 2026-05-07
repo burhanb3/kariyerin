@@ -4,10 +4,15 @@ import { GameEvents } from '../types.ts';
 
 type OscillatorKind = OscillatorType;
 
+const MUSIC_SRC = '/assets/audio/ink-under-waves.mp3';
+const MASTER_VOLUME = 0.24;
+const MUSIC_VOLUME = 0.34;
+
 export class AudioManager {
   muted: boolean;
   private context: AudioContext | null = null;
   private master: GainNode | null = null;
+  private music: HTMLAudioElement | null = null;
   private readonly eventBus: Phaser.Events.EventEmitter;
 
   constructor(eventBus: Phaser.Events.EventEmitter) {
@@ -27,12 +32,25 @@ export class AudioManager {
 
       this.context = new AudioContextClass();
       this.master = this.context.createGain();
-      this.master.gain.value = this.muted ? 0 : 0.22;
+      this.master.gain.value = this.muted ? 0 : MASTER_VOLUME;
       this.master.connect(this.context.destination);
     }
 
     if (this.context.state === 'suspended') {
       await this.context.resume();
+    }
+
+    if (!this.music) {
+      this.music = new Audio(MUSIC_SRC);
+      this.music.loop = true;
+      this.music.preload = 'auto';
+      this.music.volume = this.muted ? 0 : MUSIC_VOLUME;
+    }
+
+    if (!this.muted && this.music.paused) {
+      await this.music.play().catch(() => {
+        // Mobile browsers can still reject autoplay outside a direct gesture.
+      });
     }
   }
 
@@ -42,7 +60,17 @@ export class AudioManager {
 
     if (this.master && this.context) {
       this.master.gain.cancelScheduledValues(this.context.currentTime);
-      this.master.gain.setTargetAtTime(value ? 0 : 0.22, this.context.currentTime, 0.04);
+      this.master.gain.setTargetAtTime(value ? 0 : MASTER_VOLUME, this.context.currentTime, 0.04);
+    }
+
+    if (this.music) {
+      this.music.volume = value ? 0 : MUSIC_VOLUME;
+    }
+
+    if (value) {
+      this.music?.pause();
+    } else {
+      void this.unlock();
     }
 
     this.eventBus.emit(GameEvents.muteChange, { muted: this.muted });

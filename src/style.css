@@ -5000,6 +5000,29 @@ h2 {
   filter: saturate(0.55) brightness(0.78) !important;
 }
 
+#ui-root .screen--menu .menu-sound-button {
+  position: absolute !important;
+  top: max(1rem, env(safe-area-inset-top)) !important;
+  right: max(1rem, env(safe-area-inset-right)) !important;
+  z-index: 6 !important;
+  width: clamp(3.7rem, 5.4vw, 5.35rem) !important;
+  height: clamp(3.7rem, 5.4vw, 5.35rem) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: url("/assets/ui-ref/ingame-icon-sound.png") center / contain no-repeat !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+#ui-root .screen--menu .menu-sound-button span {
+  display: none !important;
+}
+
+#ui-root .screen--menu .menu-sound-button:has(.icon-sound.is-muted) {
+  filter: saturate(0.55) brightness(0.78) !important;
+}
+
 #ui-root .toast {
   width: clamp(14rem, 22vw, 22rem) !important;
   height: clamp(4.8rem, 8vw, 7.8rem) !important;
