@@ -1211,7 +1211,7 @@ h2 {
 }
 
 #ui-root .screen--gameover .submit-status {
-  transform: translateY(-15px);
+  transform: translateY(-20px);
 }
 
 .leaderboard-heading {
