@@ -18,6 +18,7 @@ if (!gameRoot || !uiRoot) {
 }
 
 if (window.location.pathname.replace(/\/$/, '') === '/admin') {
+  document.documentElement.dataset.mode = 'admin';
   document.body.dataset.mode = 'admin';
   gameRoot.setAttribute('hidden', 'true');
   new AdminApp({ root: uiRoot });

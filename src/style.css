@@ -67,7 +67,8 @@ button {
   pointer-events: none;
 }
 
-body[data-mode="admin"],
+html[data-mode="admin"],
+html[data-mode="admin"] body,
 body[data-mode="admin"] #app {
   min-height: 100%;
   height: auto;

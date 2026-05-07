@@ -27,6 +27,7 @@ type GameUiOptions = {
 const bestScoreKey = 'octodash.bestScore.v1';
 const clientIdKey = 'octodash.clientId.v1';
 const leaderboardRowCount = 8;
+const autoSubmitDelayMs = 3000;
 
 export class GameUi {
   private readonly root: HTMLElement;
@@ -39,6 +40,7 @@ export class GameUi {
   private currentScope: LeaderboardScope = 'all-time';
   private lastGameOver: GameOverPayload | null = null;
   private currentRunId = '';
+  private autoSubmitTimer: number | null = null;
 
   constructor(options: GameUiOptions) {
     this.root = options.root;
@@ -201,6 +203,7 @@ export class GameUi {
         case 'play':
         case 'again':
           void this.audio.unlock();
+          this.clearAutoSubmitTimer();
           this.currentRunId = this.createId('run');
           this.showGameplay();
           this.startGame();
@@ -280,6 +283,7 @@ export class GameUi {
       return;
     }
 
+    this.clearAutoSubmitTimer();
     button.disabled = true;
     status.textContent = 'Skor gönderiliyor...';
 
@@ -368,6 +372,7 @@ export class GameUi {
   }
 
   private showGameOver(payload: GameOverPayload): void {
+    this.clearAutoSubmitTimer();
     this.lastGameOver = payload;
     const previousBest = this.getBestScore();
     const best = Math.max(previousBest, payload.score);
@@ -381,17 +386,28 @@ export class GameUi {
     this.setText('[data-final-time]', `${Math.round(payload.elapsedMs / 1000)}s`);
     this.setText('[data-gameover-message]', this.randomGameOverMessage(isNewBest));
     this.query<HTMLElement>('[data-submit-status]').textContent = '';
-    const input = this.query<HTMLInputElement>('[data-player-name]');
     const submit = this.query<HTMLButtonElement>('[data-action="submit"]');
     submit.disabled = false;
     submit.textContent = 'Skoru Gönder';
     this.showScreen('gameover');
 
-    if (isNewBest && input.value.trim()) {
-      window.setTimeout(() => {
+    if (isNewBest) {
+      const status = this.query<HTMLElement>('[data-submit-status]');
+      status.textContent = 'Yeni rekor otomatik gönderilecek.';
+      this.autoSubmitTimer = window.setTimeout(() => {
+        this.autoSubmitTimer = null;
         void this.submitScore();
-      }, 250);
+      }, autoSubmitDelayMs);
     }
+  }
+
+  private clearAutoSubmitTimer(): void {
+    if (this.autoSubmitTimer === null) {
+      return;
+    }
+
+    window.clearTimeout(this.autoSubmitTimer);
+    this.autoSubmitTimer = null;
   }
 
   private showGameplay(): void {
