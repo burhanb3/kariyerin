@@ -268,6 +268,8 @@ export class GameUi {
 
     this.root.addEventListener('pointerdown', unlock, { capture: true });
     this.root.addEventListener('touchstart', unlock, { capture: true, passive: true });
+    document.addEventListener('pointerdown', unlock, { capture: true });
+    document.addEventListener('touchstart', unlock, { capture: true, passive: true });
     window.addEventListener('keydown', unlock, { capture: true });
   }
 
